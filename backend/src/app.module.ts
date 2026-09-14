@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module.js';
 import { AlatBahanModule } from './alat-bahan/alat-bahan.module.js';
 import { LocationModule } from './location/location.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
+import { TagModule } from './tag/tag.module.js';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -34,6 +35,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AlatBahanModule,
     LocationModule,
     DashboardModule,
+    TagModule,
   ],
   providers: [
     {

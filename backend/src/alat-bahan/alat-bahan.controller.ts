@@ -9,6 +9,7 @@ import {
   Query,
   Request,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AlatBahanService } from './alat-bahan.service.js';
@@ -17,6 +18,7 @@ import { UpdateAlatBahanDto } from './dto/update-alat-bahan.dto.js';
 import { QueryAlatBahanDto } from './dto/query-alat-bahan.dto.js';
 import { UpdateStokDto } from './dto/update-stok.dto.js';
 import { QueryLogMutasiDto } from './dto/query-log.dto.js';
+import type { Response as ExpressResponse } from 'express';
 
 @Controller('alat-bahan')
 export class AlatBahanController {
@@ -42,6 +44,31 @@ export class AlatBahanController {
   ) {
     const idUser = Number(req.user.userId); // Ambil idUser dari JWT request
     return this.alatBahanService.getHistoriMutasi(query, idUser);
+  }
+
+  @Get('export')
+  async downloadCsv(
+    @Request() req: { userId: number; username: string },
+    // 1. Add passthrough: true to allow dynamic modifications while returning values normally
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const idUser = Number(req.userId);
+
+    // 2. Fetch the CSV string data from your service
+    const csvData = await this.alatBahanService.exportCsv(idUser);
+
+    // 3. Generate your dynamic date and filename
+    const date = new Date().toISOString().split('T')[0];
+    const fileName = `laporan_inventaris_${date}.csv`;
+
+    // 4. Manually set the dynamic headers on the response object
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+    });
+
+    // 5. Simply return the data. NestJS handles the 200 OK status automatically.
+    return csvData;
   }
 
   @Get(':id')

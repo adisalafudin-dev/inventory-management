@@ -280,6 +280,39 @@ export class AlatBahanService {
     };
   }
 
+  async exportCsv(idUser: number): Promise<string> {
+    // 1. Ambil seluruh data barang milik user
+    const items = await this.prisma.db.orm.public.AlatBahan.where({ idUser })
+      .include('kategori')
+      .include('lokasi')
+      .orderBy((a) => a.namaBarang.asc())
+      .all();
+
+    // 2. Buat Header CSV
+    const csvRows = ['ID,Nama Barang,Kategori,Lokasi,Stok,Kondisi'];
+
+    // 3. Looping data dan gabungkan dengan koma
+    for (const item of items) {
+      // Hilangkan tanda kutip ganda dari teks agar tidak merusak format CSV
+      const nama = `"${item.namaBarang.replace(/"/g, '""')}"`;
+      const kategori = item.kategori
+        ? `"${item.kategori.namaKategori}"`
+        : 'Tanpa Kategori';
+      const lokasi = item.lokasi
+        ? `"${item.lokasi.namaLokasi}"`
+        : 'Tanpa Lokasi';
+      const kondisi = `"${item.kondisi}"`;
+
+      // Masukkan ke array per baris
+      csvRows.push(
+        `${item.id},${nama},${kategori},${lokasi},${item.kuantitas},${kondisi}`,
+      );
+    }
+
+    // 4. Gabungkan semua baris dengan enter (\n)
+    return csvRows.join('\n');
+  }
+
   remove(id: string) {
     return this.prisma.db.orm.public.AlatBahan.where({ id }).delete();
   }
