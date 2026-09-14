@@ -1,0 +1,344 @@
+[
+  {
+    "id": "column.public.kategori.idUser",
+    "label": "Add column \"idUser\" to \"kategori\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "idUser",
+        "table": "kategori"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"idUser\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "kategori",
+          "idUser"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"idUser\"",
+        "sql": "ALTER TABLE \"public\".\"kategori\" ADD COLUMN \"idUser\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"idUser\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "kategori",
+          "idUser"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.kategori.idUser",
+    "label": "Set NOT NULL on \"kategori\".\"idUser\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "idUser",
+        "table": "kategori"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"idUser\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "kategori",
+          "idUser"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"idUser\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"kategori\" WHERE \"idUser\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"idUser\"",
+        "sql": "ALTER TABLE \"public\".\"kategori\" ALTER COLUMN \"idUser\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"idUser\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "kategori",
+          "idUser",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.lokasiPenyimpanan.idUser",
+    "label": "Add column \"idUser\" to \"lokasiPenyimpanan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "idUser",
+        "table": "lokasiPenyimpanan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"idUser\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lokasiPenyimpanan",
+          "idUser"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"idUser\"",
+        "sql": "ALTER TABLE \"public\".\"lokasiPenyimpanan\" ADD COLUMN \"idUser\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"idUser\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lokasiPenyimpanan",
+          "idUser"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.lokasiPenyimpanan.idUser",
+    "label": "Set NOT NULL on \"lokasiPenyimpanan\".\"idUser\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "idUser",
+        "table": "lokasiPenyimpanan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"idUser\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "lokasiPenyimpanan",
+          "idUser"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"idUser\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"lokasiPenyimpanan\" WHERE \"idUser\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"idUser\"",
+        "sql": "ALTER TABLE \"public\".\"lokasiPenyimpanan\" ALTER COLUMN \"idUser\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"idUser\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "lokasiPenyimpanan",
+          "idUser",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.kategori.kategori_idUser_idx_6acaa521",
+    "label": "Create index \"kategori_idUser_idx_6acaa521\" on \"kategori\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "kategori_idUser_idx_6acaa521",
+        "table": "kategori"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"kategori_idUser_idx_6acaa521\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"kategori_idUser_idx_6acaa521\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"kategori_idUser_idx_6acaa521\"",
+        "sql": "CREATE INDEX \"kategori_idUser_idx_6acaa521\" ON \"public\".\"kategori\" (\"idUser\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"kategori_idUser_idx_6acaa521\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"kategori_idUser_idx_6acaa521\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lokasiPenyimpanan.lokasiPenyimpanan_idUser_idx_6acaa521",
+    "label": "Create index \"lokasiPenyimpanan_idUser_idx_6acaa521\" on \"lokasiPenyimpanan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lokasiPenyimpanan_idUser_idx_6acaa521",
+        "table": "lokasiPenyimpanan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lokasiPenyimpanan_idUser_idx_6acaa521\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lokasiPenyimpanan_idUser_idx_6acaa521\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lokasiPenyimpanan_idUser_idx_6acaa521\"",
+        "sql": "CREATE INDEX \"lokasiPenyimpanan_idUser_idx_6acaa521\" ON \"public\".\"lokasiPenyimpanan\" (\"idUser\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lokasiPenyimpanan_idUser_idx_6acaa521\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lokasiPenyimpanan_idUser_idx_6acaa521\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.kategori.kategori_idUser_fkey",
+    "label": "Add foreign key \"kategori_idUser_fkey\" on \"kategori\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "kategori_idUser_fkey",
+        "table": "kategori"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"kategori_idUser_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "kategori_idUser_fkey",
+          "public",
+          "\"public\".\"kategori\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"kategori_idUser_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"kategori\"\nADD CONSTRAINT \"kategori_idUser_fkey\"\nFOREIGN KEY (\"idUser\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"kategori_idUser_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "kategori_idUser_fkey",
+          "public",
+          "\"public\".\"kategori\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.lokasiPenyimpanan.lokasiPenyimpanan_idUser_fkey",
+    "label": "Add foreign key \"lokasiPenyimpanan_idUser_fkey\" on \"lokasiPenyimpanan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "lokasiPenyimpanan_idUser_fkey",
+        "table": "lokasiPenyimpanan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"lokasiPenyimpanan_idUser_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lokasiPenyimpanan_idUser_fkey",
+          "public",
+          "\"public\".\"lokasiPenyimpanan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"lokasiPenyimpanan_idUser_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"lokasiPenyimpanan\"\nADD CONSTRAINT \"lokasiPenyimpanan_idUser_fkey\"\nFOREIGN KEY (\"idUser\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"lokasiPenyimpanan_idUser_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lokasiPenyimpanan_idUser_fkey",
+          "public",
+          "\"public\".\"lokasiPenyimpanan\""
+        ]
+      }
+    ]
+  }
+]

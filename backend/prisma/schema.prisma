@@ -1,0 +1,98 @@
+// use prisma-next
+// Prisma 8 data contract. Config (datasource, generator output) lives in prisma.config.ts.
+// Docs: https://www.prisma.io/docs/orm/contract-authoring/psl-syntax
+
+model User {
+  id        Int               @id @default(autoincrement())
+  email     String            @unique
+  username  String
+  password String 
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  alatBahan    AlatBahan[]
+  kategori     Kategori[]
+  lokasiPenyimpanan LokasiPenyimpanan[]
+}
+
+model Kategori {
+  id           Int         @id @default(autoincrement())
+  namaKategori String
+  deskripsi    String?
+  idUser       Int
+  user         User        @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  alatBahan    AlatBahan[]
+}
+
+model LokasiPenyimpanan {
+  id            Int         @id @default(autoincrement())
+  namaLokasi    String      // Cth: "Rak Komponen 25 Laci", "Meja Solder"
+  spesifikLetak String?     // Cth: "Laci No. 12", "Kotak Perkakas"
+  idUser        Int
+  user          User        @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  alatBahan     AlatBahan[]
+}
+
+model AlatBahan {
+  id         String             @id @default(uuid())
+  namaBarang String             
+  kuantitas  Int                @default(0)
+  kondisi    KondisiBarang      @default(BAIK)
+  updatedAt  temporal.updatedAtString()
+
+  idKategori Int?
+  kategori   Kategori?          @relation(fields: [idKategori], references: [id], onDelete: SetNull)
+
+  idLokasi   Int?
+  lokasi     LokasiPenyimpanan? @relation(fields: [idLokasi], references: [id], onDelete: SetNull)
+
+  idUser     Int?
+  user       User?              @relation(fields: [idUser], references: [id], onDelete: Cascade)
+
+  logMutasi  LogMutasi[]
+  itemTags   ItemTag[]
+
+  @@map("alat_bahan")
+}
+
+model LogMutasi {
+  id              String     @id @default(uuid())
+  jumlahPerubahan Int
+  tipe            TipeMutasi
+  keterangan      String?
+  tanggal         DateTime   @default(now())
+
+  idItem          String
+  alatBahan       AlatBahan  @relation(fields: [idItem], references: [id], onDelete: Cascade)
+
+  @@map("log_mutasi")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  namaTag  String    @unique
+  itemTags ItemTag[]
+}
+
+// Tabel Junction untuk relasi Many-to-Many antara AlatBahan dan Tag
+model ItemTag {
+  idItem String
+  idTag  Int
+
+  alatBahan AlatBahan @relation(fields: [idItem], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [idTag], references: [id], onDelete: Cascade)
+
+  @@id([idItem, idTag])
+  @@map("item_tags")
+}
+
+enum KondisiBarang {
+  BAIK
+  KARATAN
+  RUSAK
+}
+
+enum TipeMutasi {
+  IN
+  OUT
+  AUDIT
+}

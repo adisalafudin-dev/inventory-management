@@ -1,0 +1,862 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.alat_bahan",
+    "label": "Create table \"alat_bahan\"",
+    "summary": "Creates table \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"alat_bahan\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"alat_bahan\"",
+        "sql": "CREATE TABLE \"public\".\"alat_bahan\" (\n  \"id\" text NOT NULL,\n  \"idKategori\" int4,\n  \"idLokasi\" int4,\n  \"idUser\" int4,\n  \"kondisi\" text DEFAULT 'BAIK' NOT NULL,\n  \"kuantitas\" int4 DEFAULT 0 NOT NULL,\n  \"namaBarang\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"alat_bahan_kondisi_check_9a0cb098\" CHECK (\"kondisi\" IN ('BAIK', 'KARATAN', 'RUSAK'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"alat_bahan\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.item_tags",
+    "label": "Create table \"item_tags\"",
+    "summary": "Creates table \"item_tags\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "item_tags"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"item_tags\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"item_tags\"",
+        "sql": "CREATE TABLE \"public\".\"item_tags\" (\n  \"idItem\" text NOT NULL,\n  \"idTag\" int4 NOT NULL,\n  PRIMARY KEY (\"idItem\", \"idTag\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"item_tags\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.kategori",
+    "label": "Create table \"kategori\"",
+    "summary": "Creates table \"kategori\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "kategori"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"kategori\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"kategori\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"kategori\"",
+        "sql": "CREATE TABLE \"public\".\"kategori\" (\n  \"deskripsi\" text,\n  \"id\" SERIAL NOT NULL,\n  \"namaKategori\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"kategori\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"kategori\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.log_mutasi",
+    "label": "Create table \"log_mutasi\"",
+    "summary": "Creates table \"log_mutasi\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "log_mutasi"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"log_mutasi\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"log_mutasi\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"log_mutasi\"",
+        "sql": "CREATE TABLE \"public\".\"log_mutasi\" (\n  \"id\" text NOT NULL,\n  \"idItem\" text NOT NULL,\n  \"jumlahPerubahan\" int4 NOT NULL,\n  \"keterangan\" text,\n  \"tanggal\" timestamptz DEFAULT (now()) NOT NULL,\n  \"tipe\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"log_mutasi_tipe_check_3f24b669\" CHECK (\"tipe\" IN ('IN', 'OUT', 'AUDIT'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"log_mutasi\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"log_mutasi\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lokasiPenyimpanan",
+    "label": "Create table \"lokasiPenyimpanan\"",
+    "summary": "Creates table \"lokasiPenyimpanan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lokasiPenyimpanan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lokasiPenyimpanan\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lokasiPenyimpanan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lokasiPenyimpanan\"",
+        "sql": "CREATE TABLE \"public\".\"lokasiPenyimpanan\" (\n  \"id\" SERIAL NOT NULL,\n  \"namaLokasi\" text NOT NULL,\n  \"spesifikLetak\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lokasiPenyimpanan\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lokasiPenyimpanan\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.tag",
+    "label": "Create table \"tag\"",
+    "summary": "Creates table \"tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tag\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tag\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tag\"",
+        "sql": "CREATE TABLE \"public\".\"tag\" (\n  \"id\" SERIAL NOT NULL,\n  \"namaTag\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tag\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tag\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.user",
+    "label": "Create table \"user\"",
+    "summary": "Creates table \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"user\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"user\"",
+        "sql": "CREATE TABLE \"public\".\"user\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"username\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"user\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.tag.tag_namaTag_key",
+    "label": "Add unique constraint on \"tag\" (namaTag)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "tag_namaTag_key",
+        "table": "tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"tag_namaTag_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tag_namaTag_key",
+          "public",
+          "\"public\".\"tag\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"tag_namaTag_key\"",
+        "sql": "ALTER TABLE \"public\".\"tag\" ADD CONSTRAINT \"tag_namaTag_key\" UNIQUE (\"namaTag\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"tag_namaTag_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tag_namaTag_key",
+          "public",
+          "\"public\".\"tag\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.user.user_email_key",
+    "label": "Add unique constraint on \"user\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "user_email_key",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"user_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "user_email_key",
+          "public",
+          "\"public\".\"user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"user_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD CONSTRAINT \"user_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"user_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "user_email_key",
+          "public",
+          "\"public\".\"user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.alat_bahan.alat_bahan_idKategori_idx_f73ca8ee",
+    "label": "Create index \"alat_bahan_idKategori_idx_f73ca8ee\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "alat_bahan_idKategori_idx_f73ca8ee",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"alat_bahan_idKategori_idx_f73ca8ee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idKategori_idx_f73ca8ee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"alat_bahan_idKategori_idx_f73ca8ee\"",
+        "sql": "CREATE INDEX \"alat_bahan_idKategori_idx_f73ca8ee\" ON \"public\".\"alat_bahan\" (\"idKategori\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"alat_bahan_idKategori_idx_f73ca8ee\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idKategori_idx_f73ca8ee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.alat_bahan.alat_bahan_idLokasi_idx_1d609b10",
+    "label": "Create index \"alat_bahan_idLokasi_idx_1d609b10\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "alat_bahan_idLokasi_idx_1d609b10",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"alat_bahan_idLokasi_idx_1d609b10\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idLokasi_idx_1d609b10\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"alat_bahan_idLokasi_idx_1d609b10\"",
+        "sql": "CREATE INDEX \"alat_bahan_idLokasi_idx_1d609b10\" ON \"public\".\"alat_bahan\" (\"idLokasi\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"alat_bahan_idLokasi_idx_1d609b10\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idLokasi_idx_1d609b10\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.alat_bahan.alat_bahan_idUser_idx_6acaa521",
+    "label": "Create index \"alat_bahan_idUser_idx_6acaa521\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "alat_bahan_idUser_idx_6acaa521",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"alat_bahan_idUser_idx_6acaa521\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idUser_idx_6acaa521\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"alat_bahan_idUser_idx_6acaa521\"",
+        "sql": "CREATE INDEX \"alat_bahan_idUser_idx_6acaa521\" ON \"public\".\"alat_bahan\" (\"idUser\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"alat_bahan_idUser_idx_6acaa521\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"alat_bahan_idUser_idx_6acaa521\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.item_tags.item_tags_idItem_idx_6ba85971",
+    "label": "Create index \"item_tags_idItem_idx_6ba85971\" on \"item_tags\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "item_tags_idItem_idx_6ba85971",
+        "table": "item_tags"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"item_tags_idItem_idx_6ba85971\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags_idItem_idx_6ba85971\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"item_tags_idItem_idx_6ba85971\"",
+        "sql": "CREATE INDEX \"item_tags_idItem_idx_6ba85971\" ON \"public\".\"item_tags\" (\"idItem\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"item_tags_idItem_idx_6ba85971\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags_idItem_idx_6ba85971\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.item_tags.item_tags_idTag_idx_8040406a",
+    "label": "Create index \"item_tags_idTag_idx_8040406a\" on \"item_tags\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "item_tags_idTag_idx_8040406a",
+        "table": "item_tags"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"item_tags_idTag_idx_8040406a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags_idTag_idx_8040406a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"item_tags_idTag_idx_8040406a\"",
+        "sql": "CREATE INDEX \"item_tags_idTag_idx_8040406a\" ON \"public\".\"item_tags\" (\"idTag\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"item_tags_idTag_idx_8040406a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"item_tags_idTag_idx_8040406a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.log_mutasi.log_mutasi_idItem_idx_6ba85971",
+    "label": "Create index \"log_mutasi_idItem_idx_6ba85971\" on \"log_mutasi\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "log_mutasi_idItem_idx_6ba85971",
+        "table": "log_mutasi"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"log_mutasi_idItem_idx_6ba85971\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"log_mutasi_idItem_idx_6ba85971\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"log_mutasi_idItem_idx_6ba85971\"",
+        "sql": "CREATE INDEX \"log_mutasi_idItem_idx_6ba85971\" ON \"public\".\"log_mutasi\" (\"idItem\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"log_mutasi_idItem_idx_6ba85971\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"log_mutasi_idItem_idx_6ba85971\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.alat_bahan.alat_bahan_idKategori_fkey",
+    "label": "Add foreign key \"alat_bahan_idKategori_fkey\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "alat_bahan_idKategori_fkey",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"alat_bahan_idKategori_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idKategori_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"alat_bahan_idKategori_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"alat_bahan\"\nADD CONSTRAINT \"alat_bahan_idKategori_fkey\"\nFOREIGN KEY (\"idKategori\")\nREFERENCES \"public\".\"kategori\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"alat_bahan_idKategori_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idKategori_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.alat_bahan.alat_bahan_idLokasi_fkey",
+    "label": "Add foreign key \"alat_bahan_idLokasi_fkey\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "alat_bahan_idLokasi_fkey",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"alat_bahan_idLokasi_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idLokasi_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"alat_bahan_idLokasi_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"alat_bahan\"\nADD CONSTRAINT \"alat_bahan_idLokasi_fkey\"\nFOREIGN KEY (\"idLokasi\")\nREFERENCES \"public\".\"lokasiPenyimpanan\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"alat_bahan_idLokasi_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idLokasi_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.alat_bahan.alat_bahan_idUser_fkey",
+    "label": "Add foreign key \"alat_bahan_idUser_fkey\" on \"alat_bahan\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "alat_bahan_idUser_fkey",
+        "table": "alat_bahan"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"alat_bahan_idUser_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idUser_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"alat_bahan_idUser_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"alat_bahan\"\nADD CONSTRAINT \"alat_bahan_idUser_fkey\"\nFOREIGN KEY (\"idUser\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"alat_bahan_idUser_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "alat_bahan_idUser_fkey",
+          "public",
+          "\"public\".\"alat_bahan\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.item_tags.item_tags_idItem_fkey",
+    "label": "Add foreign key \"item_tags_idItem_fkey\" on \"item_tags\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "item_tags_idItem_fkey",
+        "table": "item_tags"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"item_tags_idItem_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "item_tags_idItem_fkey",
+          "public",
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"item_tags_idItem_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"item_tags\"\nADD CONSTRAINT \"item_tags_idItem_fkey\"\nFOREIGN KEY (\"idItem\")\nREFERENCES \"public\".\"alat_bahan\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"item_tags_idItem_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "item_tags_idItem_fkey",
+          "public",
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.item_tags.item_tags_idTag_fkey",
+    "label": "Add foreign key \"item_tags_idTag_fkey\" on \"item_tags\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "item_tags_idTag_fkey",
+        "table": "item_tags"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"item_tags_idTag_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "item_tags_idTag_fkey",
+          "public",
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"item_tags_idTag_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"item_tags\"\nADD CONSTRAINT \"item_tags_idTag_fkey\"\nFOREIGN KEY (\"idTag\")\nREFERENCES \"public\".\"tag\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"item_tags_idTag_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "item_tags_idTag_fkey",
+          "public",
+          "\"public\".\"item_tags\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.log_mutasi.log_mutasi_idItem_fkey",
+    "label": "Add foreign key \"log_mutasi_idItem_fkey\" on \"log_mutasi\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "log_mutasi_idItem_fkey",
+        "table": "log_mutasi"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"log_mutasi_idItem_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "log_mutasi_idItem_fkey",
+          "public",
+          "\"public\".\"log_mutasi\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"log_mutasi_idItem_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"log_mutasi\"\nADD CONSTRAINT \"log_mutasi_idItem_fkey\"\nFOREIGN KEY (\"idItem\")\nREFERENCES \"public\".\"alat_bahan\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"log_mutasi_idItem_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "log_mutasi_idItem_fkey",
+          "public",
+          "\"public\".\"log_mutasi\""
+        ]
+      }
+    ]
+  }
+]
