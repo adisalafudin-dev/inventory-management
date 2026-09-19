@@ -19,17 +19,35 @@ import { QueryAlatBahanDto } from './dto/query-alat-bahan.dto.js';
 import { UpdateStokDto } from './dto/update-stok.dto.js';
 import { QueryLogMutasiDto } from './dto/query-log.dto.js';
 import type { Response as ExpressResponse } from 'express';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('alat-bahan')
+@ApiTags('Alat dan Bahan')
+@ApiBearerAuth()
 export class AlatBahanController {
   constructor(private readonly alatBahanService: AlatBahanService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Membuat data alat atau bahan baru' })
+  @ApiResponse({
+    status: 201,
+    description: 'Data alat atau bahan berhasil dibuat.',
+  })
   create(@Body() createAlatBahanDto: CreateAlatBahanDto) {
     return this.alatBahanService.create(createAlatBahanDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Mengambil daftar alat dan bahan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Daftar alat dan bahan berhasil diambil.',
+  })
   findAll(@Query() query: QueryAlatBahanDto) {
     return this.alatBahanService.findAll(query);
   }
@@ -38,6 +56,8 @@ export class AlatBahanController {
   // Harus ditaruh di atas rute yang menggunakan :id
   @UseGuards(AuthGuard('jwt'))
   @Get('log-mutasi')
+  @ApiOperation({ summary: 'Mengambil seluruh riwayat mutasi inventori' })
+  @ApiResponse({ status: 200, description: 'Riwayat mutasi berhasil diambil.' })
   getLogGlobal(
     @Query() query: QueryLogMutasiDto,
     @Request() req: { user: { userId: number; username: string } },
@@ -47,6 +67,11 @@ export class AlatBahanController {
   }
 
   @Get('export')
+  @ApiOperation({ summary: 'Mengunduh laporan inventori dalam format CSV' })
+  @ApiResponse({
+    status: 200,
+    description: 'File laporan CSV berhasil dibuat dan diunduh.',
+  })
   async downloadCsv(
     @Request() req: { userId: number; username: string },
     // 1. Add passthrough: true to allow dynamic modifications while returning values normally
@@ -72,6 +97,12 @@ export class AlatBahanController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Mengambil alat atau bahan berdasarkan ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Detail alat atau bahan berhasil diambil.',
+  })
+  @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
   findOne(@Param('id') id: string) {
     return this.alatBahanService.findOne(id);
   }
@@ -79,6 +110,13 @@ export class AlatBahanController {
   // ENDPOINT SPESIFIK: /alat-bahan/:id/log
   @UseGuards(AuthGuard('jwt'))
   @Get(':id/log')
+  @ApiOperation({
+    summary: 'Mengambil riwayat mutasi alat atau bahan tertentu',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Riwayat mutasi item berhasil diambil.',
+  })
   getLogPerBarang(
     @Param('id') idItem: string,
     @Query() query: QueryLogMutasiDto,
@@ -89,6 +127,12 @@ export class AlatBahanController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Memperbarui data alat atau bahan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Data alat atau bahan berhasil diperbarui.',
+  })
+  @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
   update(
     @Param('id') id: string,
     @Body() updateAlatBahanDto: UpdateAlatBahanDto,
@@ -97,6 +141,9 @@ export class AlatBahanController {
   }
 
   @Patch(':id/increase')
+  @ApiOperation({ summary: 'Menambah stok alat atau bahan' })
+  @ApiResponse({ status: 200, description: 'Stok berhasil ditambah.' })
+  @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
   increaseStock(
     @Param('id') id: string,
     @Body() updateStockDto: UpdateStokDto,
@@ -105,6 +152,9 @@ export class AlatBahanController {
   }
 
   @Patch(':id/decrease')
+  @ApiOperation({ summary: 'Mengurangi stok alat atau bahan' })
+  @ApiResponse({ status: 200, description: 'Stok berhasil dikurangi.' })
+  @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
   decreaseStock(
     @Param('id') id: string,
     @Body() updateStockDto: UpdateStokDto,
@@ -113,6 +163,12 @@ export class AlatBahanController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Menghapus alat atau bahan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Alat atau bahan berhasil dihapus.',
+  })
+  @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
   remove(@Param('id') id: string) {
     return this.alatBahanService.remove(id);
   }

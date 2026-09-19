@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -12,10 +13,15 @@ import { AlatBahanModule } from './alat-bahan/alat-bahan.module.js';
 import { LocationModule } from './location/location.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { TagModule } from './tag/tag.module.js';
+import { validate } from './config/env.validation.js';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate,
+    }),
     // Distributed tracing, auto-correlated logs, request/job metrics, error
     // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
     ObserveModule.forRoot({
