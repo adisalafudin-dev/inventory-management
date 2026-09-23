@@ -1,92 +1,44 @@
-# 📦 Backend Sistem Manajemen Inventaris Elektronik
-
-Backend API untuk manajemen komponen elektronik, sensor, dan perkakas laboratorium. Dibangun dengan arsitektur modern berbasis **Bun**, **NestJS**, dan **Prisma ORM v8**, dengan dukungan database **PostgreSQL/MySQL**.
+# Backend Sistem Manajemen Inventaris Elektronik
 
 ## Fitur yang Sudah Tersedia
 
-- **Autentikasi Aman** — Login dan registrasi menggunakan JWT, dengan hashing password native melalui `Bun.password`.
-- **Manajemen Master Data** — CRUD lengkap untuk Kategori, Lokasi Penyimpanan, dan Sistem Label (Tags).
-- **Manajemen Alat & Bahan** — Pencatatan dan pelacakan stok komponen fisik.
-- **Sistem Log Mutasi (Atomik)** — Menggunakan _interactive transactions_ Prisma (`tx`) untuk menjamin konsistensi data saat stok masuk/keluar.
-- **Dashboard Analytics** — Endpoint statistik ringkasan (total barang, stok menipis, barang rusak, aktivitas terbaru), dioptimasi dengan `Promise.all()`.
-- **Konsistensi Respons API** — Global Interceptor dan Global Exception Filter untuk standarisasi format JSON di seluruh endpoint.
-- **Export Data** — Endpoint untuk mengunduh laporan stok dalam format CSV.
+- [x] Autentikasi Aman — Login dan registrasi menggunakan JWT, dengan hashing password native melalui `Bun.password`.
+- [x] Manajemen Master Data — CRUD lengkap untuk Kategori, Lokasi Penyimpanan, dan Sistem Label (Tags).
+- [x] Manajemen Alat & Bahan — Pencatatan dan pelacakan stok komponen fisik.
+- [x] Sistem Log Mutasi (Atomik) — Menggunakan _interactive transactions_ Prisma (`tx`) untuk menjamin konsistensi data saat stok masuk/keluar.
+- [x] Dashboard Analytics — Endpoint statistik ringkasan (total barang, stok menipis, barang rusak, aktivitas terbaru), dioptimasi dengan `Promise.all()`.
+- [x] Konsistensi Respons API — Global Interceptor dan Global Exception Filter untuk standarisasi format JSON di seluruh endpoint.
+- [x] Export Data — Endpoint untuk mengunduh laporan stok dalam format CSV.
 
 ## Rekomendasi Peningkatan Sebelum Deploy
 
-Lima area berikut direkomendasikan untuk diperkuat sebelum sistem dirilis ke server publik.
+- [x] **Dokumentasi API Otomatis (Swagger/OpenAPI)** — Terpasang `@nestjs/swagger` dengan dekorator `@ApiTags()`, `@ApiOperation()`, `@ApiResponse()` di controller. Tersedia di `/api` (Swagger UI) dan `/reference` (Scalar API Reference).
+- [ ] **Security Hardening (Helmet & Rate Limiting)** — Instal `helmet` untuk mengamankan HTTP header, dan `@nestjs/throttler` untuk membatasi endpoint `/auth/login` maksimal 5 permintaan per menit per IP.
+- [x] **Validasi Environment Variables** — Validasi `.env` (`DATABASE_URL`, `JWT_SECRET`, dst) sudah diterapkan lewat `ConfigModule` + fungsi `validate` kustom; aplikasi menolak start dan menampilkan error log yang jelas bila variabel wajib tidak ditemukan.
+- [x] **Application Logging** — Terintegrasi dengan `nestjs-pino`; Global Exception Filter mencatat error lengkap (termasuk stack trace untuk error 500) ke log terstruktur JSON.
 
-### 1. Dokumentasi API Otomatis (Swagger/OpenAPI)
+# Integrasi Frontend Sistem Manajemen Inventaris Elektronik
 
-Saat ini, memahami endpoint yang tersedia mengharuskan pembacaan langsung ke source code. NestJS memiliki integrasi Swagger bawaan yang dapat menghasilkan dokumentasi interaktif secara otomatis.
+### Setup Awal
 
-**Rencana implementasi:**
+- [x] Inisialisasi proyek React (Vite).
+- [x] Setup shadcn/ui dan Tailwind CSS.
+- [x] Buat API client menggunakan Axios dengan interceptor untuk menyisipkan token JWT secara otomatis ke header `Authorization` di setiap pemanggilan API.
 
-- Instal `@nestjs/swagger`.
-- Tambahkan dekorator `@ApiTags()`, `@ApiOperation()`, dan `@ApiResponse()` di setiap controller.
-- Dokumentasi interaktif akan tersedia di `localhost:3000/api`.
+### Roadmap State Management
 
-### 2. Security Hardening (Helmet & Rate Limiting)
+- [ ] Buat UI Store — Setup state global untuk mengatur buka-tutup modal pencarian (`Ctrl+K`).
+- [ ] Terapkan UI Store — Hubungkan state pencarian dengan tombol di header dan event listener keyboard.
+- [ ] Buat Mutasi Store — Setup state draf keranjang mutasi sementara untuk menampung beberapa komponen sebelum dikirim ke API.
+- [ ] Terapkan Mutasi Store — Hubungkan tombol aksi di tabel barang dengan keranjang mutasi.
+- [ ] Buat Preference Store — Setup state dengan fitur persist untuk menyimpan pengaturan tampilan (Tabel/Grid) dan filter ke `localStorage`.
+- [ ] Terapkan Preference Store — Hubungkan state preferensi dengan UI halaman Inventaris agar pengaturan pengguna tidak hilang saat refresh.
+- [ ] Sidebar State Store — Simpan status buka/tutup sidebar agar konsisten antar sesi.
 
-JWT saja tidak cukup untuk melindungi API dari serangan brute-force pada endpoint autentikasi maupun celah keamanan pada HTTP header.
+# Frontend
 
-**Rencana implementasi:**
-
-- Instal `helmet` untuk mengamankan HTTP header secara default.
-- Instal `@nestjs/throttler` untuk rate limiting.
-- Batasi endpoint `/auth/login` maksimal 5 permintaan per menit per alamat IP.
-
-```typescript
-import helmet from "helmet";
-
-app.use(helmet()); // mencegah celah XSS dasar
-```
-
-### 3. Validasi Environment Variables
-
-Kegagalan menyertakan variabel seperti `DATABASE_URL` atau `JWT_SECRET` saat deployment sebaiknya menghasilkan pesan error yang jelas, bukan crash tanpa konteks.
-
-**Rencana implementasi:**
-
-- Terapkan validasi environment variable melalui `@nestjs/config` (built-in validation) atau `joi`.
-- Aplikasi harus menolak untuk start dan menampilkan log error yang eksplisit apabila variabel wajib tidak ditemukan.
-
-### 4. Application Logging
-
-Global Exception Filter saat ini sudah mengembalikan format error yang rapi ke frontend, namun error tersebut perlu tetap tercatat secara permanen di sisi server untuk keperluan audit dan debugging produksi.
-
-**Rencana implementasi:**
-
-- Integrasikan `nestjs-pino` atau `winston`.
-- Simpan log error penting ke file (misalnya `error-2026-09-14.log`) atau kirim ke layanan pemantauan seperti Sentry, khususnya untuk transaksi mutasi stok yang gagal di production.
-
-### 5. Database Seeding
-
-Instalasi ulang proyek atau perpindahan environment pengembangan saat ini menghasilkan database kosong tanpa data awal.
-
-**Rencana implementasi:**
-
-- Buat script `prisma/seed.ts`.
-- Script secara otomatis membuat user admin default dan kategori standar (misalnya "Mikrokontroler", "Resistor", "Kabel") saat perintah `bun prisma db seed` dijalankan.
-
-## Tahap Selanjutnya: Integrasi Frontend
-
-Backend sudah siap dikonsumsi. Tahap berikutnya adalah membangun antarmuka pengguna.
-
-**Setup awal:**
-
-- Inisialisasi proyek React (Vite).
-- Setup shadcn/ui dan Tailwind CSS.
-- Buat API client menggunakan Axios dengan interceptor untuk menyisipkan token JWT secara otomatis ke header `Authorization` di setiap pemanggilan API.
-
-**Roadmap state management:**
-
-| Task                      | Deskripsi                                                                                                      |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Buat UI Store             | Setup state global untuk mengatur buka-tutup modal pencarian (`Ctrl+K`)                                        |
-| Terapkan UI Store         | Hubungkan state pencarian dengan tombol di header dan event listener keyboard                                  |
-| Buat Mutasi Store         | Setup state draf keranjang mutasi sementara untuk menampung beberapa komponen sebelum dikirim ke API           |
-| Terapkan Mutasi Store     | Hubungkan tombol aksi di tabel barang dengan keranjang mutasi                                                  |
-| Buat Preference Store     | Setup state dengan fitur persist untuk menyimpan pengaturan tampilan (Tabel/Grid) dan filter ke `localStorage` |
-| Terapkan Preference Store | Hubungkan state preferensi dengan UI halaman Inventaris agar pengaturan pengguna tidak hilang saat refresh     |
-| Sidebar State Store       | Simpan status buka/tutup sidebar agar konsisten antar sesi                                                     |
+- [x] Kategori — List (search + pagination), create, update, delete dengan validasi kepemilikan per user.
+- [ ] Lokasi Penyimpanan — List, create, update, delete.
+- [ ] Alat & Bahan — List, create, update, delete, plus form tambah/kurang stok.
+- [ ] Tag — List, create, update, delete, dan relasi tag ke item inventori.
+- [ ] Riwayat Mutasi — List dengan filter dan pagination.
