@@ -1,6 +1,6 @@
 # Backend Sistem Manajemen Inventaris Elektronik
 
-## Fitur yang Sudah Tersedia
+### Fitur yang Sudah Tersedia
 
 - [x] Autentikasi Aman — Login dan registrasi menggunakan JWT, dengan hashing password native melalui `Bun.password`.
 - [x] Manajemen Master Data — CRUD lengkap untuk Kategori, Lokasi Penyimpanan, dan Sistem Label (Tags).
@@ -10,7 +10,7 @@
 - [x] Konsistensi Respons API — Global Interceptor dan Global Exception Filter untuk standarisasi format JSON di seluruh endpoint.
 - [x] Export Data — Endpoint untuk mengunduh laporan stok dalam format CSV.
 
-## Rekomendasi Peningkatan Sebelum Deploy
+### Rekomendasi Peningkatan Sebelum Deploy
 
 - [x] **Dokumentasi API Otomatis (Swagger/OpenAPI)** — Terpasang `@nestjs/swagger` dengan dekorator `@ApiTags()`, `@ApiOperation()`, `@ApiResponse()` di controller. Tersedia di `/api` (Swagger UI) dan `/reference` (Scalar API Reference).
 - [ ] **Security Hardening (Helmet & Rate Limiting)** — Instal `helmet` untuk mengamankan HTTP header, dan `@nestjs/throttler` untuk membatasi endpoint `/auth/login` maksimal 5 permintaan per menit per IP.
@@ -25,7 +25,7 @@
 - [x] Setup shadcn/ui dan Tailwind CSS.
 - [x] Buat API client menggunakan Axios dengan interceptor untuk menyisipkan token JWT secara otomatis ke header `Authorization` di setiap pemanggilan API.
 
-## CRUD Frontend
+### CRUD Frontend
 
 - [x] Kategori — List (search + pagination), create, update, delete dengan validasi kepemilikan per user.
 - [ ] Lokasi Penyimpanan — List, create, update, delete.
