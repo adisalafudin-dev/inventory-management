@@ -25,6 +25,14 @@
 - [x] Setup shadcn/ui dan Tailwind CSS.
 - [x] Buat API client menggunakan Axios dengan interceptor untuk menyisipkan token JWT secara otomatis ke header `Authorization` di setiap pemanggilan API.
 
+## CRUD Frontend
+
+- [x] Kategori — List (search + pagination), create, update, delete dengan validasi kepemilikan per user.
+- [ ] Lokasi Penyimpanan — List, create, update, delete.
+- [ ] Alat & Bahan — List, create, update, delete, plus form tambah/kurang stok.
+- [ ] Tag — List, create, update, delete, dan relasi tag ke item inventori.
+- [ ] Riwayat Mutasi — List dengan filter dan pagination.
+
 ### Roadmap State Management
 
 - [ ] Buat UI Store — Setup state global untuk mengatur buka-tutup modal pencarian (`Ctrl+K`).
@@ -34,11 +42,3 @@
 - [ ] Buat Preference Store — Setup state dengan fitur persist untuk menyimpan pengaturan tampilan (Tabel/Grid) dan filter ke `localStorage`.
 - [ ] Terapkan Preference Store — Hubungkan state preferensi dengan UI halaman Inventaris agar pengaturan pengguna tidak hilang saat refresh.
 - [ ] Sidebar State Store — Simpan status buka/tutup sidebar agar konsisten antar sesi.
-
-# Frontend
-
-- [x] Kategori — List (search + pagination), create, update, delete dengan validasi kepemilikan per user.
-- [ ] Lokasi Penyimpanan — List, create, update, delete.
-- [ ] Alat & Bahan — List, create, update, delete, plus form tambah/kurang stok.
-- [ ] Tag — List, create, update, delete, dan relasi tag ke item inventori.
-- [ ] Riwayat Mutasi — List dengan filter dan pagination.
