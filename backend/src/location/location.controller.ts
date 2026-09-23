@@ -39,8 +39,8 @@ export class LocationController {
   @Get()
   @ApiOperation({ summary: 'Mengambil daftar lokasi' })
   @ApiResponse({ status: 200, description: 'Daftar lokasi berhasil diambil.' })
-  findAll(@Query() Query: QueryLocationDto) {
-    return this.locationService.findAll(Query);
+  findAll(@Query() query: QueryLocationDto) {
+    return this.locationService.findAll(query);
   }
 
   @Get(':id')

@@ -4,6 +4,12 @@ import { ConflictException } from '@nestjs/common';
 import { UserService } from '../user/user.service.js';
 import { JwtService } from '@nestjs/jwt';
 
+type AuthenticatedUser = {
+  id: number;
+  username: string;
+  email: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -28,7 +34,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
 
     // Langsung buat payload dan token setelah data user tersimpan
     const payload = { username: user.username, sub: user.id };
@@ -59,9 +65,12 @@ export class AuthService {
     return { ...userWithoutPassword };
   }
 
-  async login(user: { id: number; username: string }) {
+  login(user: AuthenticatedUser) {
     const payload = { username: user.username, sub: user.id };
+
     return {
+      message: 'Login berhasil',
+      user,
       access_token: this.jwtService.sign(payload),
     };
   }

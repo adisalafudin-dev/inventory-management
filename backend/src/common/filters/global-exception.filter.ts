@@ -1,4 +1,4 @@
-// src/common/filters/global-exception.filter.ts
+// src/common/filters/all-exceptions.filter.ts
 import {
   ExceptionFilter,
   Catch,
@@ -6,50 +6,52 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 
-@Catch() // Kosongkan dekorator ini agar menangkap semua jenis exception
+@Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  constructor(private readonly logger: PinoLogger) {
+    this.logger.setContext('ExceptionFilter');
+  }
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
-    // Tentukan HTTP Status Code (jika HttpException ambil statusnya, jika error sistem set ke 500)
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    // Ekstrak pesan dari exception
-    let message = 'Terjadi kesalahan pada server internal';
-    let errorType = 'Internal Server Error';
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'Internal server error';
 
-    if (exception instanceof HttpException) {
-      const exceptionResponse = exception.getResponse();
-
-      if (typeof exceptionResponse === 'string') {
-        message = exceptionResponse;
-      } else if (
-        typeof exceptionResponse === 'object' &&
-        exceptionResponse !== null
-      ) {
-        // Menangkap error validasi dari class-validator (biasanya berbentuk array)
-        const msg = (exceptionResponse as any).message;
-        message = Array.isArray(msg) ? msg[0] : msg;
-        errorType = (exceptionResponse as any).error || 'Error';
-      }
-    } else if (exception instanceof Error) {
-      // (Opsional) Tampilkan pesan error asli jika itu error sistem,
-      // namun di production biasanya ini disembunyikan agar lebih aman.
-      message = exception.message;
+    if (status >= 500) {
+      // error 500 = bug/gak terduga, wajib full detail + stack trace
+      this.logger.error(
+        {
+          err: exception, // pino punya serializer khusus buat Error object, otomatis ambil stack
+          method: request.method,
+          url: request.url,
+          userId: (request as any).user?.id,
+        },
+        'Unhandled exception',
+      );
+    } else {
+      // error 4xx = kesalahan client (validasi, not found, dst), cukup warn tanpa stack
+      this.logger.warn(
+        { method: request.method, url: request.url, status },
+        typeof message === 'string' ? message : JSON.stringify(message),
+      );
     }
 
-    // Kembalikan JSON dengan struktur yang konsisten dengan TransformInterceptor
     response.status(status).json({
-      statusCode: status,
-      message: message,
-      error: errorType,
-      data: null, // Selalu null jika terjadi error
+      success: false,
+      message,
     });
   }
 }

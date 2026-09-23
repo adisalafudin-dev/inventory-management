@@ -17,11 +17,4 @@ export class UpdateCategoryDto {
   @IsString()
   @IsOptional()
   deskripsi?: string;
-
-  @ApiProperty({
-    example: 42,
-    description: 'ID pengguna yang melakukan perubahan kategori.',
-  })
-  @IsNotEmpty({ message: 'ID user tidak boleh kosong' })
-  idUser!: number;
 }

@@ -27,14 +27,16 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @ApiOperation({ summary: 'Login pengguna' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Login berhasil dan token akses dikembalikan.',
   })
   @ApiResponse({
     status: 401,
     description: 'Username atau password tidak valid.',
   })
-  login(@Request() req: { user: { id: number; username: string } }) {
+  login(
+    @Request() req: { user: { id: number; username: string; email: string } },
+  ) {
     return this.authService.login(req.user);
   }
 }

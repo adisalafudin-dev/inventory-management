@@ -116,7 +116,12 @@ Buat file `backend/.env` berdasarkan `backend/.env.example`:
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/app_db?schema=public"
 JWT_SECRET="replace-with-a-secure-secret"
+# Optional Nest Observe telemetry credentials
+OBSERVE_APP_KEY="your_observe_app_key"
+OBSERVE_APP_SECRET="your_observe_app_secret"
 ```
+
+`OBSERVE_APP_KEY` dan `OBSERVE_APP_SECRET` bersifat opsional. Isi keduanya hanya jika telemetry Nest Observe digunakan; gunakan kredensial valid dari Nest Observe.
 
 Jangan commit file `.env` atau secret ke repository.
 

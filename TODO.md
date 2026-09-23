@@ -1,71 +1,92 @@
 # 📦 Backend Sistem Manajemen Inventaris Elektronik
 
-Backend API untuk manajemen komponen elektronik, sensor, dan perkakas laboratorium. Dibangun menggunakan arsitektur modern berbasis **Bun**, **NestJS**, dan **Prisma ORM (v8)** dengan database **PostgreSQL/MySQL**.
+Backend API untuk manajemen komponen elektronik, sensor, dan perkakas laboratorium. Dibangun dengan arsitektur modern berbasis **Bun**, **NestJS**, dan **Prisma ORM v8**, dengan dukungan database **PostgreSQL/MySQL**.
 
-## 🚀 Fitur Tersedia (Core Features)
+## Fitur yang Sudah Tersedia
 
-- [x] **Autentikasi Aman:** Login/Register dengan JWT dan hashing password menggunakan `Bun.password` native.
-- [x] **Manajemen Master Data:** CRUD Kategori, Lokasi Penyimpanan, dan Sistem Label (Tags).
-- [x] **Manajemen Alat & Bahan:** Pencatatan stok komponen fisik.
-- [x] **Sistem Log Mutasi (Atomik):** Menggunakan _Interactive Transactions_ Prisma (`tx`) untuk menjamin konsistensi saat stok keluar/masuk.
-- [x] **Dashboard Analytics:** Endpoint statistik ringkasan (total barang, stok menipis, barang rusak, aktivitas terakhir) yang dioptimasi dengan `Promise.all()`.
-- [x] **Konsistensi Respons:** Implementasi Global Interceptor dan Global Exception Filter untuk standarisasi format JSON.
-- [x] **Export Data:** Endpoint untuk mengunduh laporan stok dalam format CSV.
+- **Autentikasi Aman** — Login dan registrasi menggunakan JWT, dengan hashing password native melalui `Bun.password`.
+- **Manajemen Master Data** — CRUD lengkap untuk Kategori, Lokasi Penyimpanan, dan Sistem Label (Tags).
+- **Manajemen Alat & Bahan** — Pencatatan dan pelacakan stok komponen fisik.
+- **Sistem Log Mutasi (Atomik)** — Menggunakan _interactive transactions_ Prisma (`tx`) untuk menjamin konsistensi data saat stok masuk/keluar.
+- **Dashboard Analytics** — Endpoint statistik ringkasan (total barang, stok menipis, barang rusak, aktivitas terbaru), dioptimasi dengan `Promise.all()`.
+- **Konsistensi Respons API** — Global Interceptor dan Global Exception Filter untuk standarisasi format JSON di seluruh endpoint.
+- **Export Data** — Endpoint untuk mengunduh laporan stok dalam format CSV.
 
----
+## Rekomendasi Peningkatan Sebelum Deploy
 
-## 🛠️ Rekomendasi Improvisasi (Best Practice Improvements)
-
-Meskipun sistem inti sudah berjalan, berikut adalah 4 improvisasi _best practice_ yang direkomendasikan sebelum di-deploy ke server publik:
+Lima area berikut direkomendasikan untuk diperkuat sebelum sistem dirilis ke server publik.
 
 ### 1. Dokumentasi API Otomatis (Swagger/OpenAPI)
 
-Saat ini frontend developer (atau Anda di masa depan) harus melihat kode untuk mengetahui _endpoint_ apa saja yang tersedia. NestJS memiliki integrasi Swagger bawaan.
+Saat ini, memahami endpoint yang tersedia mengharuskan pembacaan langsung ke source code. NestJS memiliki integrasi Swagger bawaan yang dapat menghasilkan dokumentasi interaktif secara otomatis.
 
-- **Tindakan:** Instal `@nestjs/swagger`.
-- **Implementasi:** Tambahkan dekorator seperti `@ApiTags()`, `@ApiOperation()`, dan `@ApiResponse()` di setiap Controller. Ini akan otomatis men-generate halaman dokumentasi interaktif (biasanya di `localhost:3000/api`).
+**Rencana implementasi:**
+
+- Instal `@nestjs/swagger`.
+- Tambahkan dekorator `@ApiTags()`, `@ApiOperation()`, dan `@ApiResponse()` di setiap controller.
+- Dokumentasi interaktif akan tersedia di `localhost:3000/api`.
 
 ### 2. Security Hardening (Helmet & Rate Limiting)
 
-Meskipun sudah ada JWT, API Anda masih rentan terhadap _Brute-Force Attack_ (mencoba login ribuan kali per detik) dan celah _header_ HTTP.
+JWT saja tidak cukup untuk melindungi API dari serangan brute-force pada endpoint autentikasi maupun celah keamanan pada HTTP header.
 
-- **Tindakan:**
-  - Instal `helmet` (middleware untuk mengamankan HTTP headers).
-  - Instal `@nestjs/throttler` (untuk Rate Limiting).
-- **Implementasi di `main.ts`:**
-  ```typescript
-  import helmet from 'helmet';
-  // ...
-  app.use(helmet()); // Mencegah celah XSS dasar
-  Implementasi Rate Limiter: Batasi endpoint /auth/login maksimal 5 request per 1 menit per IP.
-  ```
+**Rencana implementasi:**
 
-3. Validasi Environment Variables (ConfigModule)
-   Jika aplikasi di-deploy tapi Anda lupa memasukkan DATABASE_URL atau JWT_SECRET di server, aplikasi akan mati (crash) dengan pesan error yang membingungkan.
+- Instal `helmet` untuk mengamankan HTTP header secara default.
+- Instal `@nestjs/throttler` untuk rate limiting.
+- Batasi endpoint `/auth/login` maksimal 5 permintaan per menit per alamat IP.
 
-Tindakan: Instal joi atau gunakan validasi bawaan @nestjs/config.
+```typescript
+import helmet from "helmet";
 
-Implementasi: Validasi file .env saat aplikasi di-bootstrap. Jika JWT_SECRET tidak ada, aplikasi menolak menyala dan memberikan error log yang jelas di terminal.
+app.use(helmet()); // mencegah celah XSS dasar
+```
 
-4. Application Logging (Pino / Winston)
-   Saat ini, Global Exception Filter mengembalikan format error yang rapi ke frontend, tetapi bagaimana cara Anda (sebagai backend developer) melacak error 500 (Internal Server Error) di server? NestJS logger bawaan akan hilang saat terminal ditutup.
+### 3. Validasi Environment Variables
 
-Tindakan: Integrasikan nestjs-pino atau winston.
+Kegagalan menyertakan variabel seperti `DATABASE_URL` atau `JWT_SECRET` saat deployment sebaiknya menghasilkan pesan error yang jelas, bukan crash tanpa konteks.
 
-Implementasi: Simpan log error penting ke dalam file (misal: error-2026-09-14.log) atau kirim ke layanan pemantauan (seperti Sentry) agar Anda tahu jika ada transaksi mutasi stok yang gagal di production.
+**Rencana implementasi:**
 
-5. Database Seeding (Seed Script)
-   Saat menginstal ulang proyek atau berpindah komputer, database akan kosong.
+- Terapkan validasi environment variable melalui `@nestjs/config` (built-in validation) atau `joi`.
+- Aplikasi harus menolak untuk start dan menampilkan log error yang eksplisit apabila variabel wajib tidak ditemukan.
 
-Tindakan: Buat file prisma/seed.ts.
+### 4. Application Logging
 
-Implementasi: Tulis script untuk otomatis membuat User admin default dan Kategori standar (seperti "Mikrokontroler", "Resistor", "Kabel") saat perintah bun prisma db seed dijalankan.
+Global Exception Filter saat ini sudah mengembalikan format error yang rapi ke frontend, namun error tersebut perlu tetap tercatat secara permanen di sisi server untuk keperluan audit dan debugging produksi.
 
-💻 Tahap Selanjutnya: Integrasi Frontend
-Backend sudah siap dikonsumsi. Langkah selanjutnya adalah membangun antarmuka pengguna:
+**Rencana implementasi:**
 
-Inisialisasi proyek Next.js atau React (Vite).
+- Integrasikan `nestjs-pino` atau `winston`.
+- Simpan log error penting ke file (misalnya `error-2026-09-14.log`) atau kirim ke layanan pemantauan seperti Sentry, khususnya untuk transaksi mutasi stok yang gagal di production.
 
-Setup Shadcn UI & Tailwind CSS.
+### 5. Database Seeding
 
-Buat API Client menggunakan Axios atau Fetch dengan interceptor untuk menyisipkan token JWT secara otomatis ke dalam Header Authorization setiap kali memanggil API ini.
+Instalasi ulang proyek atau perpindahan environment pengembangan saat ini menghasilkan database kosong tanpa data awal.
+
+**Rencana implementasi:**
+
+- Buat script `prisma/seed.ts`.
+- Script secara otomatis membuat user admin default dan kategori standar (misalnya "Mikrokontroler", "Resistor", "Kabel") saat perintah `bun prisma db seed` dijalankan.
+
+## Tahap Selanjutnya: Integrasi Frontend
+
+Backend sudah siap dikonsumsi. Tahap berikutnya adalah membangun antarmuka pengguna.
+
+**Setup awal:**
+
+- Inisialisasi proyek React (Vite).
+- Setup shadcn/ui dan Tailwind CSS.
+- Buat API client menggunakan Axios dengan interceptor untuk menyisipkan token JWT secara otomatis ke header `Authorization` di setiap pemanggilan API.
+
+**Roadmap state management:**
+
+| Task                      | Deskripsi                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Buat UI Store             | Setup state global untuk mengatur buka-tutup modal pencarian (`Ctrl+K`)                                        |
+| Terapkan UI Store         | Hubungkan state pencarian dengan tombol di header dan event listener keyboard                                  |
+| Buat Mutasi Store         | Setup state draf keranjang mutasi sementara untuk menampung beberapa komponen sebelum dikirim ke API           |
+| Terapkan Mutasi Store     | Hubungkan tombol aksi di tabel barang dengan keranjang mutasi                                                  |
+| Buat Preference Store     | Setup state dengan fitur persist untuk menyimpan pengaturan tampilan (Tabel/Grid) dan filter ke `localStorage` |
+| Terapkan Preference Store | Hubungkan state preferensi dengan UI halaman Inventaris agar pengaturan pengguna tidak hilang saat refresh     |
+| Sidebar State Store       | Simpan status buka/tutup sidebar agar konsisten antar sesi                                                     |

@@ -1,5 +1,5 @@
 // src/kategori/dto/query-kategori.dto.ts
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -32,5 +32,6 @@ export class QueryKategoriDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(50)
   limit?: number = 10;
 }

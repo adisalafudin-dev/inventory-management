@@ -65,7 +65,7 @@ bunx prisma migration plan
 bunx prisma contract emit
 ```
 
-Dari root, gunakan `bun run --cwd backend <script>` atau `bun --cwd frontend run <script>`. Production backend memakai `node dist/src/main.js` melalui script `start:prod`.
+Dari root, gunakan `bun run --cwd backend <script>` atau `bun --cwd frontend run <script>`. Production backend memakai `bun dist/src/main.js` melalui script `start:prod`, karena auth menggunakan `Bun.password`.
 
 > Update section ini kalau ada command baru yang sering dipakai berulang.
 
@@ -189,6 +189,7 @@ return <ProductList data={data} />;
 
 - Backend memakai `backend/.env`, dimuat oleh `ConfigModule` dan `dotenv`.
 - Variabel wajib backend: `DATABASE_URL` dan `JWT_SECRET`; lihat `backend/.env.example`.
+- Variabel telemetry opsional: `OBSERVE_APP_KEY` dan `OBSERVE_APP_SECRET`; gunakan kredensial Nest Observe yang valid.
 - Jangan pernah mencetak nilai secret di log atau output tool.
 - Semua env var frontend wajib memakai prefix `VITE_` dan harus ditambahkan ke `frontend/.env.example`.
 

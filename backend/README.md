@@ -7,7 +7,7 @@ An opinionated, production-ready NestJS 12 starter template powered by **Bun**, 
 [![Bun](https://img.shields.io/badge/Bun-1.1+-fbf0df?style=for-the-badge&logo=bun&logoColor=fbf0df&labelColor=14151a)](https://bun.sh/)
 [![NestJS](https://img.shields.io/badge/NestJS-12-ea2845?style=for-the-badge&logo=nestjs&logoColor=ea2845&labelColor=14151a)](https://nestjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178c6?style=for-the-badge&logo=typescript&logoColor=3178c6&labelColor=14151a)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-8_(Next)-2d3748?style=for-the-badge&logo=prisma&logoColor=white&labelColor=14151a)](https://www.prisma.io/)
+[![Prisma](<https://img.shields.io/badge/Prisma-8_(Next)-2d3748?style=for-the-badge&logo=prisma&logoColor=white&labelColor=14151a>)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169e1?style=for-the-badge&logo=postgresql&logoColor=4169e1&labelColor=14151a)](https://www.postgresql.org/)
 [![Vitest](https://img.shields.io/badge/Vitest-4-6e9f18?style=for-the-badge&logo=vitest&logoColor=6e9f18&labelColor=14151a)](https://vitest.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ed?style=for-the-badge&logo=docker&logoColor=2496ed&labelColor=14151a)](https://www.docker.com/)
@@ -80,40 +80,40 @@ The server starts at **http://localhost:3000**. Hit `GET /health` to verify.
 
 ### Development
 
-| Command | Description |
-| --- | --- |
-| `bun run start` | Start the app (single run) |
-| `bun run start:dev` | Start in watch mode (auto-restart on changes) |
-| `bun run start:debug` | Start in debug + watch mode |
-| `bun run start:prod` | Run the compiled production build (`node dist/main`) |
-| `bun run build` | Compile the project via NestJS CLI |
+| Command               | Description                                                         |
+| --------------------- | ------------------------------------------------------------------- |
+| `bun run start`       | Start the app (single run)                                          |
+| `bun run start:dev`   | Start in watch mode (auto-restart on changes)                       |
+| `bun run start:debug` | Start in debug + watch mode                                         |
+| `bun run start:prod`  | Run the compiled production build with Bun (`bun dist/src/main.js`) |
+| `bun run build`       | Compile the project via NestJS CLI                                  |
 
 ### Database (Prisma 8)
 
-| Command | Description |
-| --- | --- |
-| `bun run contract:emit` | Generate typed contract artifacts (`contract.json` + `contract.d.ts`) |
-| `bun run db:init` | Initialize the Prisma database |
-| `bun run db:sign` | Sign the current database state |
-| `bun run db:migrate` | Apply pending migrations |
-| `bun run migration:plan` | Preview the next migration plan without applying |
+| Command                  | Description                                                           |
+| ------------------------ | --------------------------------------------------------------------- |
+| `bun run contract:emit`  | Generate typed contract artifacts (`contract.json` + `contract.d.ts`) |
+| `bun run db:init`        | Initialize the Prisma database                                        |
+| `bun run db:sign`        | Sign the current database state                                       |
+| `bun run db:migrate`     | Apply pending migrations                                              |
+| `bun run migration:plan` | Preview the next migration plan without applying                      |
 
 ### Testing
 
-| Command | Description |
-| --- | --- |
-| `bun run test` | Run unit tests once |
-| `bun run test:watch` | Run unit tests in watch mode |
-| `bun run test:cov` | Run unit tests with coverage report |
-| `bun run test:debug` | Run tests with debugger attached |
-| `bun run test:e2e` | Run end-to-end tests |
+| Command              | Description                         |
+| -------------------- | ----------------------------------- |
+| `bun run test`       | Run unit tests once                 |
+| `bun run test:watch` | Run unit tests in watch mode        |
+| `bun run test:cov`   | Run unit tests with coverage report |
+| `bun run test:debug` | Run tests with debugger attached    |
+| `bun run test:e2e`   | Run end-to-end tests                |
 
 ### Code Quality
 
-| Command | Description |
-| --- | --- |
-| `bun run lint` | Lint `src/` and `test/` with oxlint |
-| `bun run format` | Format code with Prettier |
+| Command          | Description                         |
+| ---------------- | ----------------------------------- |
+| `bun run lint`   | Lint `src/` and `test/` with oxlint |
+| `bun run format` | Format code with Prettier           |
 
 ---
 
@@ -204,21 +204,21 @@ docker run -p 3000:3000 --env-file .env nest-project:latest
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-| --- | --- | --- | --- |
-| `DATABASE_URL` | ✅ | — | PostgreSQL connection string |
-| `NODE_ENV` | — | `development` | `development` · `production` · `test` |
-| `PORT` | — | `3000` | HTTP server port |
+| Variable       | Required | Default       | Description                           |
+| -------------- | -------- | ------------- | ------------------------------------- |
+| `DATABASE_URL` | ✅       | —             | PostgreSQL connection string          |
+| `NODE_ENV`     | —        | `development` | `development` · `production` · `test` |
+| `PORT`         | —        | `3000`        | HTTP server port                      |
 
 Docker Compose also reads these to configure PostgreSQL:
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `DB_USER` | `postgres` | PostgreSQL user |
-| `DB_PASSWORD` | `postgres` | PostgreSQL password |
-| `DB_NAME` | `app_db` | PostgreSQL database name |
-| `DB_PORT` | `5432` | Host port mapping for PostgreSQL |
-| `APP_PORT` | `3000` | Host port mapping for the app (prod compose) |
+| Variable      | Default    | Description                                  |
+| ------------- | ---------- | -------------------------------------------- |
+| `DB_USER`     | `postgres` | PostgreSQL user                              |
+| `DB_PASSWORD` | `postgres` | PostgreSQL password                          |
+| `DB_NAME`     | `app_db`   | PostgreSQL database name                     |
+| `DB_PORT`     | `5432`     | Host port mapping for PostgreSQL             |
+| `APP_PORT`    | `3000`     | Host port mapping for the app (prod compose) |
 
 ---
 

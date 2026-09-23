@@ -32,8 +32,12 @@ export class CategoryController {
   @Post()
   @ApiOperation({ summary: 'Membuat kategori baru' })
   @ApiResponse({ status: 201, description: 'Kategori berhasil dibuat.' })
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  create(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @Request() req: { user: { id: number } },
+  ) {
+    const idUser = Number(req.user.id);
+    return this.categoryService.create(createCategoryDto, idUser);
   }
 
   @Get()
@@ -42,8 +46,12 @@ export class CategoryController {
     status: 200,
     description: 'Daftar kategori berhasil diambil.',
   })
-  findAll(@Query() query: QueryKategoriDto) {
-    return this.categoryService.findAll(query);
+  findAll(
+    @Query() query: QueryKategoriDto,
+    @Request() req: { user: { id: number } },
+  ) {
+    const userId = req.user.id;
+    return this.categoryService.findAll(query, userId);
   }
 
   @Get(':id')
@@ -66,12 +74,10 @@ export class CategoryController {
     @Body() updateCategoryDto: UpdateCategoryDto,
     @Request() req: { user: { id: number } },
   ) {
+    console.log('user', req.user);
     const userId = Number(req.user.id); // Ambil idUser dari request
 
-    return this.categoryService.update(+id, {
-      ...updateCategoryDto,
-      idUser: userId,
-    });
+    return this.categoryService.update(+id, updateCategoryDto, userId);
   }
 
   @Delete(':id')

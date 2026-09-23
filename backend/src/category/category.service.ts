@@ -13,7 +13,7 @@ import { QueryKategoriDto } from './dto/query-kategori.dto.js';
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto, idUser: number) {
     const sameName = await this.prisma.db.orm.public.Kategori.where({
       namaKategori: createCategoryDto.namaKategori,
     }).all();
@@ -29,16 +29,19 @@ export class CategoryService {
     }
 
     return this.prisma.db.orm.public.Kategori.create({
+      idUser: idUser,
       namaKategori: createCategoryDto.namaKategori,
       deskripsi: createCategoryDto.deskripsi,
     });
   }
 
-  async findAll(query: QueryKategoriDto) {
+  async findAll(query: QueryKategoriDto, idUser: number) {
     const { search, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
-    let baseQuery = this.prisma.db.orm.public.Kategori;
+    let baseQuery = this.prisma.db.orm.public.Kategori.where({
+      idUser: idUser,
+    });
 
     if (search) {
       baseQuery = baseQuery.where((k) => k.namaKategori.like(`%${search}%`));
@@ -75,17 +78,24 @@ export class CategoryService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+    userId: number,
+  ) {
     const updatedCategory = await this.prisma.db.orm.public.Kategori.where({
       id,
-      idUser: updateCategoryDto.idUser,
+      idUser: userId,
     }).all();
 
     if (!updatedCategory) {
       throw new NotFoundException('Kategori tidak ditemukan');
     }
 
-    return await this.prisma.db.orm.public.Kategori.where({ id }).update({
+    return await this.prisma.db.orm.public.Kategori.where({
+      id,
+      idUser: userId,
+    }).update({
       namaKategori: updateCategoryDto.namaKategori,
       deskripsi: updateCategoryDto.deskripsi,
     });

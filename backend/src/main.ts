@@ -3,12 +3,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module.js';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
-import { GlobalExceptionFilter } from './common/filters/global-exception.filter.js'; // Import filter baru
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   const config = new DocumentBuilder()
     .setTitle('Api Inventori')
@@ -30,7 +31,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  app.enableCors({ origin: '*', credentials: true });
+  app.enableCors({ origin: 'http://localhost:5173', credentials: true });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -42,8 +43,6 @@ async function bootstrap() {
   );
 
   app.useGlobalInterceptors(new TransformInterceptor());
-
-  app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableShutdownHooks();
 

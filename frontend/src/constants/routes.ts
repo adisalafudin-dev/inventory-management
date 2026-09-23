@@ -3,4 +3,9 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   DASHBOARD: "/dashboard",
+  CATEGORIES: "/categories",
+  LOCATIONS: "/locations",
+  ITEMS: "/items",
+  TAGS: "/tags",
+  MUTATIONS: "/mutations",
 } as const;
