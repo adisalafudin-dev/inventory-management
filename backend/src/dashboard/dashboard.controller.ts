@@ -1,4 +1,4 @@
-import { Controller, Get, Request } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -6,6 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { DashboardService } from './dashboard.service.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @Controller('dashboard')
 @ApiTags('Dashboard')
@@ -19,9 +20,7 @@ export class DashboardController {
     status: 200,
     description: 'Ringkasan dashboard berhasil diambil.',
   })
-  getSummary(@Request() req: { user: { userId: number; username: string } }) {
-    // Ekstrak ID dari token JWT untuk menjamin keamanan data
-    const idUser = Number(req.user.userId);
+  getSummary(@CurrentUser('id') idUser: number) {
     return this.dashboardService.getSummary(idUser);
   }
 }

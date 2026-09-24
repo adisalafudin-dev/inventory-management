@@ -11,23 +11,27 @@ import { QueryLocationDto } from './dto/query-location.dto.js';
 @Injectable()
 export class LocationService {
   constructor(private prisma: PrismaService) {}
-  create(createLocationDto: CreateLocationDto) {
+  create(createLocationDto: CreateLocationDto, idUser: number) {
     const result = this.prisma.db.orm.public.LokasiPenyimpanan.create({
+      idUser: idUser,
       namaLokasi: createLocationDto.namaLokasi,
       spesifikLetak: createLocationDto.spesifikasiLetak,
-      idUser: createLocationDto.idUser,
     });
     return result;
   }
 
-  async findAll(query: QueryLocationDto) {
+  async findAll(query: QueryLocationDto, idUser: number) {
     const { search, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
-    let baseQuery = this.prisma.db.orm.public.LokasiPenyimpanan;
+    let baseQuery = this.prisma.db.orm.public.LokasiPenyimpanan.where((l) =>
+      l.idUser.eq(idUser),
+    );
 
     if (search) {
-      baseQuery = baseQuery.where((l) => l.namaLokasi.like(`%${search}%`));
+      baseQuery = baseQuery.where(
+        (l) => l.idUser.eq(idUser) && l.namaLokasi.like(`%${search}%`),
+      );
     }
 
     const data = await baseQuery
@@ -35,6 +39,8 @@ export class LocationService {
       .limit(limit)
       .offset(offsetValue)
       .all();
+
+    console.log(data);
 
     const result = await baseQuery.aggregate((a) => ({ total: a.count() }));
 
@@ -64,11 +70,14 @@ export class LocationService {
     }).first();
   }
 
-  update(id: number, updateLocationDto: UpdateLocationDto) {
+  update(id: number, updateLocationDto: UpdateLocationDto, idUser: number) {
     return this.prisma.db.orm.public.LokasiPenyimpanan.where({
       id: id,
-      idUser: updateLocationDto.idUser,
-    }).update(updateLocationDto);
+      idUser: idUser,
+    }).update({
+      ...updateLocationDto,
+      idUser: idUser,
+    });
   }
 
   remove(id: number, idUser: number) {

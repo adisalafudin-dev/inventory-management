@@ -17,11 +17,4 @@ export class CreateLocationDto {
   @IsString()
   @IsOptional()
   spesifikasiLetak?: string;
-
-  @ApiProperty({
-    example: 42,
-    description: 'ID pengguna yang membuat lokasi.',
-  })
-  @IsNotEmpty({ message: 'idUser tidak boleh kosong' })
-  idUser!: number;
 }

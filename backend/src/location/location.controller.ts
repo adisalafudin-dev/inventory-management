@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Query,
-  Req,
 } from '@nestjs/common';
 import { LocationService } from './location.service.js';
 import { CreateLocationDto } from './dto/create-location.dto.js';
@@ -21,6 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @UseGuards(AuthGuard('jwt')) // Gunakan AuthGuard untuk melindungi semua endpoint
 @Controller('location')
@@ -32,24 +32,26 @@ export class LocationController {
   @Post()
   @ApiOperation({ summary: 'Membuat lokasi baru' })
   @ApiResponse({ status: 201, description: 'Lokasi berhasil dibuat.' })
-  create(@Body() createLocationDto: CreateLocationDto) {
-    return this.locationService.create(createLocationDto);
+  create(
+    @Body() createLocationDto: CreateLocationDto,
+    @CurrentUser('id') idUser: number,
+  ) {
+    return this.locationService.create(createLocationDto, idUser);
   }
 
   @Get()
   @ApiOperation({ summary: 'Mengambil daftar lokasi' })
   @ApiResponse({ status: 200, description: 'Daftar lokasi berhasil diambil.' })
-  findAll(@Query() query: QueryLocationDto) {
-    return this.locationService.findAll(query);
+  findAll(@Query() query: QueryLocationDto, @CurrentUser('id') idUser: number) {
+    return this.locationService.findAll(query, idUser);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Mengambil lokasi berdasarkan ID' })
   @ApiResponse({ status: 200, description: 'Detail lokasi berhasil diambil.' })
   @ApiResponse({ status: 404, description: 'Lokasi tidak ditemukan.' })
-  findOne(@Param('id') id: string, @Req() req: { user: { id: number } }) {
-    const userId = Number(req.user.id);
-    return this.locationService.findOne(+id, userId);
+  findOne(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.locationService.findOne(+id, idUser);
   }
 
   @Patch(':id')
@@ -59,19 +61,16 @@ export class LocationController {
   update(
     @Param('id') id: string,
     @Body() updateLocationDto: UpdateLocationDto,
-    @Req() req: { user: { id: number } },
+    @CurrentUser('id') idUser: number,
   ) {
-    const userId = Number(req.user.id); // Ambil idUser dari request
-    updateLocationDto.idUser = userId; // Tambahkan idUser ke updateLocationDto
-    return this.locationService.update(+id, updateLocationDto);
+    return this.locationService.update(+id, updateLocationDto, idUser);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Menghapus lokasi' })
   @ApiResponse({ status: 200, description: 'Lokasi berhasil dihapus.' })
   @ApiResponse({ status: 404, description: 'Lokasi tidak ditemukan.' })
-  remove(@Param('id') id: string, @Req() req: { user: { id: number } }) {
-    const userId = Number(req.user.id);
-    return this.locationService.remove(+id, userId);
+  remove(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.locationService.remove(+id, idUser);
   }
 }

@@ -43,7 +43,7 @@ export class AlatBahanService {
     });
   }
 
-  async create(createAlatBahanDto: CreateAlatBahanDto) {
+  async create(createAlatBahanDto: CreateAlatBahanDto, idUser: number) {
     return this.prisma.db.transaction(async (tx) => {
       const data = await tx.orm.public.AlatBahan.create({
         id: randomUUID(),
@@ -51,39 +51,40 @@ export class AlatBahanService {
         kuantitas: createAlatBahanDto.kuantitas,
         kondisi: createAlatBahanDto.kondisi,
         updatedAt: new Date().toISOString(),
-        idUser: Number(createAlatBahanDto.idUser),
+        idUser: idUser,
         idLokasi: Number(createAlatBahanDto.idLokasi),
         idKategori: Number(createAlatBahanDto.idKategori),
       });
 
       // Buat log mutasi awal (tipe: IN) în același transakcija
-      const mutation = await this.catatMutasi(
-        tx.orm,
-        data.id,
-        Number(createAlatBahanDto.idUser),
-        {
-          jumlah: createAlatBahanDto.kuantitas,
-          tipe: 'IN',
-          keterangan: 'Pencatatan awal alat/bahan',
-        },
-      );
+      const mutation = await this.catatMutasi(tx.orm, data.id, Number(idUser), {
+        jumlah: createAlatBahanDto.kuantitas,
+        tipe: 'IN',
+        keterangan: 'Pencatatan awal alat/bahan',
+      });
 
       return { data, mutation };
     });
   }
 
-  async findAll(query: QueryAlatBahanDto) {
+  async findAll(query: QueryAlatBahanDto, idUser: number) {
     const { search, kondisi, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
-    let baseQuery = this.prisma.db.orm.public.AlatBahan;
+    let baseQuery = this.prisma.db.orm.public.AlatBahan.where((a) =>
+      a.idUser.eq(idUser),
+    );
 
     if (search) {
-      baseQuery = baseQuery.where((a) => a.namaBarang.like(`%${search}%`));
+      baseQuery = baseQuery.where(
+        (a) => a.idUser.eq(idUser) && a.namaBarang.like(`%${search}%`),
+      );
     }
 
     if (kondisi) {
-      baseQuery = baseQuery.where((a) => a.kondisi.like(`%${kondisi}%`));
+      baseQuery = baseQuery.where(
+        (a) => a.idUser.eq(idUser) && a.kondisi.like(`%${kondisi}%`),
+      );
     }
 
     const data = await baseQuery
@@ -105,39 +106,48 @@ export class AlatBahanService {
     };
   }
 
-  findOne(id: string) {
-    return this.prisma.db.orm.public.AlatBahan.where({ id }).first();
+  async findOne(id: string, idUser: number) {
+    const item = await this.prisma.db.orm.public.AlatBahan.where({
+      id,
+      idUser,
+    }).first();
+
+    if (!item) throw new NotFoundException('Item tidak ditemukan');
+    return item;
   }
 
-  async update(id: string, updateAlatBahanDto: UpdateAlatBahanDto) {
+  async update(
+    id: string,
+    updateAlatBahanDto: UpdateAlatBahanDto,
+    userId: number,
+  ) {
     return this.prisma.db.transaction(async (tx) => {
       const current = await tx.orm.public.AlatBahan.where({ id }).first();
       if (!current) throw new NotFoundException('Item tidak ditemukan');
+      if (current.idUser !== userId)
+        throw new ForbiddenException('Akses ditolak');
 
-      // Cari user yang melakukan perubahan (idUser dari DTO, fallback: pemilik item)
-      const idUser = updateAlatBahanDto.idUser
-        ? Number(updateAlatBahanDto.idUser)
-        : (current.idUser ?? NaN);
-
+      const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
       const newKuantitas = updateAlatBahanDto.kuantitas ?? current.kuantitas;
       const delta = newKuantitas - current.kuantitas;
       const tipe = delta >= 0 ? 'IN' : delta < 0 ? 'OUT' : 'AUDIT';
 
       // Buat log mutasi pertama (IN/OUT sesuai delta kuantitas)
-      const mutation = await this.catatMutasi(tx.orm, id, idUser, {
+      const mutation = await this.catatMutasi(tx.orm, id, currentUserId, {
         jumlah: Math.abs(delta),
         tipe,
         keterangan: 'Pencatatan perubahan alat/bahan',
       });
 
-      const data = await tx.orm.public.AlatBahan.where({ id }).update({
+      const data = await tx.orm.public.AlatBahan.where({
+        id,
+        idUser: currentUserId,
+      }).update({
         namaBarang: updateAlatBahanDto.namaBarang,
         kuantitas: updateAlatBahanDto.kuantitas,
         kondisi: updateAlatBahanDto.kondisi,
         updatedAt: new Date().toISOString(),
-        idUser: updateAlatBahanDto.idUser
-          ? Number(updateAlatBahanDto.idUser)
-          : undefined,
+        idUser: currentUserId,
         idLokasi: updateAlatBahanDto.idLokasi
           ? Number(updateAlatBahanDto.idLokasi)
           : undefined,
@@ -150,18 +160,20 @@ export class AlatBahanService {
     });
   }
 
-  async increaseStock(id: string, updateStockDto: UpdateStokDto) {
+  async increaseStock(
+    id: string,
+    updateStockDto: UpdateStokDto,
+    userId: number,
+  ) {
     return this.prisma.db.transaction(async (tx) => {
       const current = await tx.orm.public.AlatBahan.where({ id }).first();
       if (!current) throw new NotFoundException('Item tidak ditemukan');
+      if (current.idUser !== userId)
+        throw new ForbiddenException('Akses ditolak');
 
-      // Cari user yang melakukan perubahan (idUser dari DTO, fallback: pemilik item)
-      const idUser = updateStockDto.idUser
-        ? Number(updateStockDto.idUser)
-        : (current.idUser ?? NaN);
+      const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
 
-      // Buat log mutasi pertama (IN/OUT sesuai delta kuantitas)
-      const mutation = await this.catatMutasi(tx.orm, id, idUser, {
+      const mutation = await this.catatMutasi(tx.orm, id, currentUserId, {
         jumlah: updateStockDto.jumlah,
         tipe: 'IN',
         keterangan: 'Pencatatan increase perubahan alat/bahan',
@@ -169,7 +181,10 @@ export class AlatBahanService {
 
       const newQuantity = (current.kuantitas += updateStockDto.jumlah);
 
-      const data = await tx.orm.public.AlatBahan.where({ id }).update({
+      const data = await tx.orm.public.AlatBahan.where({
+        id,
+        idUser: currentUserId,
+      }).update({
         kuantitas: newQuantity,
       });
 
@@ -177,18 +192,20 @@ export class AlatBahanService {
     });
   }
 
-  async decreaseStock(id: string, updateStockDto: UpdateStokDto) {
+  async decreaseStock(
+    id: string,
+    updateStockDto: UpdateStokDto,
+    userId: number,
+  ) {
     return this.prisma.db.transaction(async (tx) => {
       const current = await tx.orm.public.AlatBahan.where({ id }).first();
       if (!current) throw new NotFoundException('Item tidak ditemukan');
+      if (current.idUser !== userId)
+        throw new ForbiddenException('Akses ditolak');
 
-      // Cari user yang melakukan perubahan (idUser dari DTO, fallback: pemilik item)
-      const idUser = updateStockDto.idUser
-        ? Number(updateStockDto.idUser)
-        : (current.idUser ?? NaN);
+      const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
 
-      // Buat log mutasi pertama (IN/OUT sesuai delta kuantitas)
-      const mutation = await this.catatMutasi(tx.orm, id, idUser, {
+      const mutation = await this.catatMutasi(tx.orm, id, currentUserId, {
         jumlah: updateStockDto.jumlah,
         tipe: 'OUT',
         keterangan: `Pencatatan pengurangan stock ${updateStockDto.jumlah} alat/bahan`,
@@ -196,7 +213,10 @@ export class AlatBahanService {
 
       const newQuantity = (current.kuantitas -= updateStockDto.jumlah);
 
-      const data = await tx.orm.public.AlatBahan.where({ id }).update({
+      const data = await tx.orm.public.AlatBahan.where({
+        id,
+        idUser: currentUserId,
+      }).update({
         kuantitas: newQuantity,
       });
 
@@ -313,7 +333,7 @@ export class AlatBahanService {
     return csvRows.join('\n');
   }
 
-  remove(id: string) {
-    return this.prisma.db.orm.public.AlatBahan.where({ id }).delete();
+  remove(id: string, idUser: number) {
+    return this.prisma.db.orm.public.AlatBahan.where({ id, idUser }).delete();
   }
 }

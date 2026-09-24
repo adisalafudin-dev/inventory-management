@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  Request,
 } from '@nestjs/common';
 import { CategoryService } from './category.service.js';
 import { CreateCategoryDto } from './dto/create-category.dto.js';
@@ -21,6 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @Controller('category')
 @UseGuards(AuthGuard('jwt')) // Gunakan AuthGuard untuk melindungi semua endpoint
@@ -34,9 +34,8 @@ export class CategoryController {
   @ApiResponse({ status: 201, description: 'Kategori berhasil dibuat.' })
   create(
     @Body() createCategoryDto: CreateCategoryDto,
-    @Request() req: { user: { id: number } },
+    @CurrentUser('id') idUser: number,
   ) {
-    const idUser = Number(req.user.id);
     return this.categoryService.create(createCategoryDto, idUser);
   }
 
@@ -46,12 +45,8 @@ export class CategoryController {
     status: 200,
     description: 'Daftar kategori berhasil diambil.',
   })
-  findAll(
-    @Query() query: QueryKategoriDto,
-    @Request() req: { user: { id: number } },
-  ) {
-    const userId = req.user.id;
-    return this.categoryService.findAll(query, userId);
+  findAll(@Query() query: QueryKategoriDto, @CurrentUser('id') idUser: number) {
+    return this.categoryService.findAll(query, idUser);
   }
 
   @Get(':id')
@@ -72,21 +67,16 @@ export class CategoryController {
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-    @Request() req: { user: { id: number } },
+    @CurrentUser('id') idUser: number,
   ) {
-    console.log('user', req.user);
-    const userId = Number(req.user.id); // Ambil idUser dari request
-
-    return this.categoryService.update(+id, updateCategoryDto, userId);
+    return this.categoryService.update(+id, updateCategoryDto, idUser);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Menghapus kategori' })
   @ApiResponse({ status: 200, description: 'Kategori berhasil dihapus.' })
   @ApiResponse({ status: 404, description: 'Kategori tidak ditemukan.' })
-  remove(@Param('id') id: string, @Request() req: { user: { id: number } }) {
-    const userId = Number(req.user.id); // Ambil idUser dari request
-
-    return this.categoryService.remove(+id, userId);
+  remove(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.categoryService.remove(+id, idUser);
   }
 }

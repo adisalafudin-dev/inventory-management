@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  Request,
   UseGuards,
   Response,
 } from '@nestjs/common';
@@ -25,6 +24,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @Controller('alat-bahan')
 @ApiTags('Alat dan Bahan')
@@ -38,8 +38,11 @@ export class AlatBahanController {
     status: 201,
     description: 'Data alat atau bahan berhasil dibuat.',
   })
-  create(@Body() createAlatBahanDto: CreateAlatBahanDto) {
-    return this.alatBahanService.create(createAlatBahanDto);
+  create(
+    @Body() createAlatBahanDto: CreateAlatBahanDto,
+    @CurrentUser('id') idUser: number,
+  ) {
+    return this.alatBahanService.create(createAlatBahanDto, idUser);
   }
 
   @Get()
@@ -48,8 +51,11 @@ export class AlatBahanController {
     status: 200,
     description: 'Daftar alat dan bahan berhasil diambil.',
   })
-  findAll(@Query() query: QueryAlatBahanDto) {
-    return this.alatBahanService.findAll(query);
+  findAll(
+    @Query() query: QueryAlatBahanDto,
+    @CurrentUser('id') idUser: number,
+  ) {
+    return this.alatBahanService.findAll(query, idUser);
   }
 
   // ENDPOINT GLOBAL: /alat-bahan/log-mutasi
@@ -60,9 +66,8 @@ export class AlatBahanController {
   @ApiResponse({ status: 200, description: 'Riwayat mutasi berhasil diambil.' })
   getLogGlobal(
     @Query() query: QueryLogMutasiDto,
-    @Request() req: { user: { userId: number; username: string } },
+    @CurrentUser('id') idUser: number,
   ) {
-    const idUser = Number(req.user.userId); // Ambil idUser dari JWT request
     return this.alatBahanService.getHistoriMutasi(query, idUser);
   }
 
@@ -73,12 +78,10 @@ export class AlatBahanController {
     description: 'File laporan CSV berhasil dibuat dan diunduh.',
   })
   async downloadCsv(
-    @Request() req: { userId: number; username: string },
+    @CurrentUser('id') idUser: number,
     // 1. Add passthrough: true to allow dynamic modifications while returning values normally
     @Response({ passthrough: true }) res: ExpressResponse,
   ) {
-    const idUser = Number(req.userId);
-
     // 2. Fetch the CSV string data from your service
     const csvData = await this.alatBahanService.exportCsv(idUser);
 
@@ -103,8 +106,8 @@ export class AlatBahanController {
     description: 'Detail alat atau bahan berhasil diambil.',
   })
   @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
-  findOne(@Param('id') id: string) {
-    return this.alatBahanService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.alatBahanService.findOne(id, idUser);
   }
 
   // ENDPOINT SPESIFIK: /alat-bahan/:id/log
@@ -120,9 +123,8 @@ export class AlatBahanController {
   getLogPerBarang(
     @Param('id') idItem: string,
     @Query() query: QueryLogMutasiDto,
-    @Request() req: { user: { userId: number; username: string } },
+    @CurrentUser('id') idUser: number,
   ) {
-    const idUser = Number(req.user.userId); // Ambil idUser dari JWT request
     return this.alatBahanService.getHistoriMutasi(query, idUser, idItem);
   }
 
@@ -136,8 +138,9 @@ export class AlatBahanController {
   update(
     @Param('id') id: string,
     @Body() updateAlatBahanDto: UpdateAlatBahanDto,
+    @CurrentUser('id') idUser: number,
   ) {
-    return this.alatBahanService.update(id, updateAlatBahanDto);
+    return this.alatBahanService.update(id, updateAlatBahanDto, idUser);
   }
 
   @Patch(':id/increase')
@@ -147,8 +150,9 @@ export class AlatBahanController {
   increaseStock(
     @Param('id') id: string,
     @Body() updateStockDto: UpdateStokDto,
+    @CurrentUser('id') idUser: number,
   ) {
-    return this.alatBahanService.increaseStock(id, updateStockDto);
+    return this.alatBahanService.increaseStock(id, updateStockDto, idUser);
   }
 
   @Patch(':id/decrease')
@@ -158,8 +162,9 @@ export class AlatBahanController {
   decreaseStock(
     @Param('id') id: string,
     @Body() updateStockDto: UpdateStokDto,
+    @CurrentUser('id') idUser: number,
   ) {
-    return this.alatBahanService.decreaseStock(id, updateStockDto);
+    return this.alatBahanService.decreaseStock(id, updateStockDto, idUser);
   }
 
   @Delete(':id')
@@ -169,7 +174,7 @@ export class AlatBahanController {
     description: 'Alat atau bahan berhasil dihapus.',
   })
   @ApiResponse({ status: 404, description: 'Alat atau bahan tidak ditemukan.' })
-  remove(@Param('id') id: string) {
-    return this.alatBahanService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.alatBahanService.remove(id, idUser);
   }
 }

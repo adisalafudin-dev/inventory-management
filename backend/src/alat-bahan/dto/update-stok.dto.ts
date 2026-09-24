@@ -6,11 +6,7 @@ export class UpdateStokDto {
     example: 'clxyz1234567890',
     description: 'ID pengguna yang melakukan perubahan stok.',
   })
-  @IsString()
-  @IsNotEmpty({ message: 'idUser tidak boleh kosong' })
-  idUser!: string;
-
-  @ApiProperty({
+w  @ApiProperty({
     example: 5,
     description: 'Jumlah stok yang ditambahkan atau dikurangi.',
   })

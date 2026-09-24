@@ -39,9 +39,7 @@ export class CategoryService {
     const { search, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
-    let baseQuery = this.prisma.db.orm.public.Kategori.where({
-      idUser: idUser,
-    });
+    let baseQuery = this.prisma.db.orm.public.Kategori;
 
     if (search) {
       baseQuery = baseQuery.where((k) => k.namaKategori.like(`%${search}%`));
@@ -51,6 +49,7 @@ export class CategoryService {
       .orderBy((k) => k.id.desc())
       .limit(limit)
       .offset(offsetValue)
+      .where({ idUser: idUser })
       .all();
 
     const result = await baseQuery.aggregate((a) => ({ total: a.count() }));

@@ -34,10 +34,6 @@ export class CreateAlatBahanDto {
     example: 'clxyz1234567890',
     description: 'ID pengguna yang memiliki atau mendaftarkan alat/bahan.',
   })
-  @IsString()
-  @IsNotEmpty({ message: 'idUser tidak boleh kosong' })
-  idUser!: string;
-
   @ApiProperty({
     example: 'clloc1234567890',
     description: 'ID lokasi penyimpanan alat atau bahan.',
