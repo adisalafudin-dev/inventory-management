@@ -1,4 +1,4 @@
-// use prisma-next
+// use prisma-8
 // Prisma 8 data contract. Config (datasource, generator output) lives in prisma.config.ts.
 // Docs: https://www.prisma.io/docs/orm/contract-authoring/psl-syntax
 
@@ -7,11 +7,12 @@ model User {
   email     String            @unique
   username  String
   password String 
-  createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString()
+  createdAt        DateTime   @default(now())
+  updatedAt temporal.updatedAt()
   alatBahan    AlatBahan[]
   kategori     Kategori[]
   lokasiPenyimpanan LokasiPenyimpanan[]
+  tags Tag[]
 }
 
 model Kategori {
@@ -37,7 +38,7 @@ model AlatBahan {
   namaBarang String             
   kuantitas  Int                @default(0)
   kondisi    KondisiBarang      @default(BAIK)
-  updatedAt  temporal.updatedAtString()
+  updatedAt temporal.updatedAt()
 
   idKategori Int?
   kategori   Kategori?          @relation(fields: [idKategori], references: [id], onDelete: SetNull)
@@ -49,7 +50,7 @@ model AlatBahan {
   user       User?              @relation(fields: [idUser], references: [id], onDelete: Cascade)
 
   logMutasi  LogMutasi[]
-  itemTags   ItemTag[]
+  alatBahanTag  AlatBahanTag[]   
 
   @@map("alat_bahan")
 }
@@ -69,20 +70,24 @@ model LogMutasi {
 
 model Tag {
   id       Int       @id @default(autoincrement())
-  namaTag  String    @unique
-  itemTags ItemTag[]
+  namaTag  String   
+  alatBahan AlatBahanTag[]
+
+  userId Int
+  author   User   @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+  @@unique([namaTag, userId])
 }
 
-// Tabel Junction untuk relasi Many-to-Many antara AlatBahan dan Tag
-model ItemTag {
-  idItem String
-  idTag  Int
+model AlatBahanTag {
+  alatBahanId String
+  tagId       Int
 
-  alatBahan AlatBahan @relation(fields: [idItem], references: [id], onDelete: Cascade)
-  tag       Tag       @relation(fields: [idTag], references: [id], onDelete: Cascade)
+  alatBahan   AlatBahan @relation(fields: [alatBahanId], references: [id], onDelete: Cascade)
+  tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@id([idItem, idTag])
-  @@map("item_tags")
+
+  @@id([alatBahanId, tagId])
 }
 
 enum KondisiBarang {

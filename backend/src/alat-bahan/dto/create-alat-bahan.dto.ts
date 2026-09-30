@@ -1,6 +1,14 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Kondisi } from '../../common/types/kondisi.types.js';
+import { Tag } from '../../tag/entities/tag.entity.js';
 
 export class CreateAlatBahanDto {
   @ApiProperty({
@@ -49,4 +57,12 @@ export class CreateAlatBahanDto {
   @IsString()
   @IsNotEmpty({ message: 'idKategori tidak boleh kosong' })
   idKategori!: string;
+
+  @ApiProperty({
+    type: [Object],
+    description: 'Daftar tag yang terkait dengan alat/bahan.',
+  })
+  @IsArray()
+  @IsOptional()
+  itemTags!: Array<Tag>;
 }

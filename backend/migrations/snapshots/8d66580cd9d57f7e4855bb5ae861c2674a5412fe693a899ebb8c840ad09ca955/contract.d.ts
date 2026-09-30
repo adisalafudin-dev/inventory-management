@@ -33,9 +33,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'77d6b1e2f9ebd26b8bea46b59cb6a11ac20b354ddaee7b8242bdc596deb4150a'>;
+  StorageHashBase<'8d66580cd9d57f7e4855bb5ae861c2674a5412fe693a899ebb8c840ad09ca955'>;
 export type ExecutionHash =
-  ExecutionHashBase<'40c6768f340a8988dc9c7ff945077a225259ca4f2d0ec1d3c607d2b80fe577c1'>;
+  ExecutionHashBase<'b213abc24cead2ab759c7214b8e981dc48a9769ef7f3c37633119e5a70a81cb6'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -246,19 +246,20 @@ export type FieldOutputTypes = {
       readonly namaBarang: CodecTypes['pg/text@1']['output'];
       readonly kuantitas: CodecTypes['pg/int4@1']['output'];
       readonly kondisi: 'BAIK' | 'KARATAN' | 'RUSAK';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly idKategori: CodecTypes['pg/int4@1']['output'] | null;
       readonly idLokasi: CodecTypes['pg/int4@1']['output'] | null;
       readonly idUser: CodecTypes['pg/int4@1']['output'] | null;
     };
-    readonly ItemTag: {
-      readonly idItem: CodecTypes['pg/text@1']['output'];
-      readonly idTag: CodecTypes['pg/int4@1']['output'];
+    readonly AlatBahanTag: {
+      readonly alatBahanId: CodecTypes['pg/text@1']['output'];
+      readonly tagId: CodecTypes['pg/int4@1']['output'];
     };
     readonly Kategori: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly namaKategori: CodecTypes['pg/text@1']['output'];
       readonly deskripsi: CodecTypes['pg/text@1']['output'] | null;
+      readonly idUser: CodecTypes['pg/int4@1']['output'];
     };
     readonly LogMutasi: {
       readonly id: CodecTypes['pg/text@1']['output'];
@@ -272,17 +273,20 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly namaLokasi: CodecTypes['pg/text@1']['output'];
       readonly spesifikLetak: CodecTypes['pg/text@1']['output'] | null;
+      readonly idUser: CodecTypes['pg/int4@1']['output'];
     };
     readonly Tag: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly namaTag: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly password: CodecTypes['pg/text@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
   };
 };
@@ -293,19 +297,20 @@ export type FieldInputTypes = {
       readonly namaBarang: CodecTypes['pg/text@1']['input'];
       readonly kuantitas: CodecTypes['pg/int4@1']['input'];
       readonly kondisi: 'BAIK' | 'KARATAN' | 'RUSAK';
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly idKategori: CodecTypes['pg/int4@1']['input'] | null;
       readonly idLokasi: CodecTypes['pg/int4@1']['input'] | null;
       readonly idUser: CodecTypes['pg/int4@1']['input'] | null;
     };
-    readonly ItemTag: {
-      readonly idItem: CodecTypes['pg/text@1']['input'];
-      readonly idTag: CodecTypes['pg/int4@1']['input'];
+    readonly AlatBahanTag: {
+      readonly alatBahanId: CodecTypes['pg/text@1']['input'];
+      readonly tagId: CodecTypes['pg/int4@1']['input'];
     };
     readonly Kategori: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly namaKategori: CodecTypes['pg/text@1']['input'];
       readonly deskripsi: CodecTypes['pg/text@1']['input'] | null;
+      readonly idUser: CodecTypes['pg/int4@1']['input'];
     };
     readonly LogMutasi: {
       readonly id: CodecTypes['pg/text@1']['input'];
@@ -319,17 +324,20 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly namaLokasi: CodecTypes['pg/text@1']['input'];
       readonly spesifikLetak: CodecTypes['pg/text@1']['input'] | null;
+      readonly idUser: CodecTypes['pg/int4@1']['input'];
     };
     readonly Tag: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly namaTag: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly password: CodecTypes['pg/text@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
   };
 };
@@ -343,15 +351,16 @@ export type StorageColumnTypes = {
       readonly kondisi: 'BAIK' | 'KARATAN' | 'RUSAK';
       readonly kuantitas: CodecTypes['pg/int4@1']['output'];
       readonly namaBarang: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
-    readonly item_tags: {
-      readonly idItem: CodecTypes['pg/text@1']['output'];
-      readonly idTag: CodecTypes['pg/int4@1']['output'];
+    readonly alatBahanTag: {
+      readonly alatBahanId: CodecTypes['pg/text@1']['output'];
+      readonly tagId: CodecTypes['pg/int4@1']['output'];
     };
     readonly kategori: {
       readonly deskripsi: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly idUser: CodecTypes['pg/int4@1']['output'];
       readonly namaKategori: CodecTypes['pg/text@1']['output'];
     };
     readonly log_mutasi: {
@@ -364,18 +373,21 @@ export type StorageColumnTypes = {
     };
     readonly lokasiPenyimpanan: {
       readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly idUser: CodecTypes['pg/int4@1']['output'];
       readonly namaLokasi: CodecTypes['pg/text@1']['output'];
       readonly spesifikLetak: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly tag: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly namaTag: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'];
     };
     readonly user: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly password: CodecTypes['pg/text@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly username: CodecTypes['pg/text@1']['output'];
     };
   };
@@ -390,15 +402,16 @@ export type StorageColumnInputTypes = {
       readonly kondisi: 'BAIK' | 'KARATAN' | 'RUSAK';
       readonly kuantitas: CodecTypes['pg/int4@1']['input'];
       readonly namaBarang: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
-    readonly item_tags: {
-      readonly idItem: CodecTypes['pg/text@1']['input'];
-      readonly idTag: CodecTypes['pg/int4@1']['input'];
+    readonly alatBahanTag: {
+      readonly alatBahanId: CodecTypes['pg/text@1']['input'];
+      readonly tagId: CodecTypes['pg/int4@1']['input'];
     };
     readonly kategori: {
       readonly deskripsi: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly idUser: CodecTypes['pg/int4@1']['input'];
       readonly namaKategori: CodecTypes['pg/text@1']['input'];
     };
     readonly log_mutasi: {
@@ -411,18 +424,21 @@ export type StorageColumnInputTypes = {
     };
     readonly lokasiPenyimpanan: {
       readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly idUser: CodecTypes['pg/int4@1']['input'];
       readonly namaLokasi: CodecTypes['pg/text@1']['input'];
       readonly spesifikLetak: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly tag: {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly namaTag: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly user: {
-      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly email: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly password: CodecTypes['pg/text@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly username: CodecTypes['pg/text@1']['input'];
     };
   };
@@ -477,7 +493,7 @@ type ContractBase = Omit<
                 };
                 readonly updatedAt: {
                   readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                 };
                 readonly idKategori: {
@@ -557,32 +573,32 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly item_tags: {
+            readonly alatBahanTag: {
               columns: {
-                readonly idItem: {
+                readonly alatBahanId: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
-                readonly idTag: {
+                readonly tagId: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
                   readonly nullable: false;
                 };
               };
-              primaryKey: { readonly columns: readonly ['idItem', 'idTag'] };
+              primaryKey: { readonly columns: readonly ['alatBahanId', 'tagId'] };
               uniques: readonly [];
               indexes: readonly [
                 {
-                  readonly name: 'item_tags_idItem_idx_6ba85971';
-                  readonly prefix: 'item_tags_idItem_idx';
-                  readonly columns: readonly ['idItem'];
+                  readonly name: 'alatBahanTag_alatBahanId_idx_990fe3a8';
+                  readonly prefix: 'alatBahanTag_alatBahanId_idx';
+                  readonly columns: readonly ['alatBahanId'];
                   readonly unique: false;
                 },
                 {
-                  readonly name: 'item_tags_idTag_idx_8040406a';
-                  readonly prefix: 'item_tags_idTag_idx';
-                  readonly columns: readonly ['idTag'];
+                  readonly name: 'alatBahanTag_tagId_idx_86854244';
+                  readonly prefix: 'alatBahanTag_tagId_idx';
+                  readonly columns: readonly ['tagId'];
                   readonly unique: false;
                 },
               ];
@@ -590,8 +606,8 @@ type ContractBase = Omit<
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'item_tags';
-                    readonly columns: readonly ['idItem'];
+                    readonly tableName: 'alatBahanTag';
+                    readonly columns: readonly ['alatBahanId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
@@ -602,8 +618,8 @@ type ContractBase = Omit<
                 {
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'item_tags';
-                    readonly columns: readonly ['idTag'];
+                    readonly tableName: 'alatBahanTag';
+                    readonly columns: readonly ['tagId'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
@@ -634,11 +650,36 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly idUser: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
-              indexes: readonly [];
-              foreignKeys: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'kategori_idUser_idx_6acaa521';
+                  readonly prefix: 'kategori_idUser_idx';
+                  readonly columns: readonly ['idUser'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'kategori';
+                    readonly columns: readonly ['idUser'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly log_mutasi: {
               columns: {
@@ -720,11 +761,36 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
                 };
+                readonly idUser: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [];
-              indexes: readonly [];
-              foreignKeys: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'lokasiPenyimpanan_idUser_idx_6acaa521';
+                  readonly prefix: 'lokasiPenyimpanan_idUser_idx';
+                  readonly columns: readonly ['idUser'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'lokasiPenyimpanan';
+                    readonly columns: readonly ['idUser'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly tag: {
               columns: {
@@ -742,11 +808,36 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
+                readonly userId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['namaTag'] }];
-              indexes: readonly [];
-              foreignKeys: readonly [];
+              uniques: readonly [{ readonly columns: readonly ['namaTag', 'userId'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'tag_userId_idx_a489d58a';
+                  readonly prefix: 'tag_userId_idx';
+                  readonly columns: readonly ['userId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'tag';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly user: {
               columns: {
@@ -769,15 +860,20 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
+                readonly password: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
                 readonly updatedAt: {
                   readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                 };
               };
@@ -822,7 +918,10 @@ type ContractBase = Omit<
       readonly model: 'LogMutasi';
     };
     readonly tag: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tag' };
-    readonly item_tags: { readonly namespace: 'public' & NamespaceId; readonly model: 'ItemTag' };
+    readonly alatBahanTag: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'AlatBahanTag';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -850,7 +949,7 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
               readonly idKategori: {
@@ -867,15 +966,15 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly itemTags: {
+              readonly alatBahanTag: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ItemTag';
+                  readonly model: 'AlatBahanTag';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
                   readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['idItem'];
+                  readonly targetFields: readonly ['alatBahanId'];
                 };
               };
               readonly kategori: {
@@ -935,13 +1034,13 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly ItemTag: {
+          readonly AlatBahanTag: {
             readonly fields: {
-              readonly idItem: {
+              readonly alatBahanId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly idTag: {
+              readonly tagId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
@@ -954,7 +1053,7 @@ type ContractBase = Omit<
                 };
                 readonly cardinality: 'N:1';
                 readonly on: {
-                  readonly localFields: readonly ['idItem'];
+                  readonly localFields: readonly ['alatBahanId'];
                   readonly targetFields: readonly ['id'];
                 };
               };
@@ -962,17 +1061,17 @@ type ContractBase = Omit<
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tag' };
                 readonly cardinality: 'N:1';
                 readonly on: {
-                  readonly localFields: readonly ['idTag'];
+                  readonly localFields: readonly ['tagId'];
                   readonly targetFields: readonly ['id'];
                 };
               };
             };
             readonly storage: {
-              readonly table: 'item_tags';
+              readonly table: 'alatBahanTag';
               readonly namespaceId: 'public';
               readonly fields: {
-                readonly idItem: { readonly column: 'idItem' };
-                readonly idTag: { readonly column: 'idTag' };
+                readonly alatBahanId: { readonly column: 'alatBahanId' };
+                readonly tagId: { readonly column: 'tagId' };
               };
             };
           };
@@ -990,6 +1089,10 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly idUser: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
             };
             readonly relations: {
               readonly alatBahan: {
@@ -1003,6 +1106,14 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['idKategori'];
                 };
               };
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['idUser'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'kategori';
@@ -1011,6 +1122,7 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly namaKategori: { readonly column: 'namaKategori' };
                 readonly deskripsi: { readonly column: 'deskripsi' };
+                readonly idUser: { readonly column: 'idUser' };
               };
             };
           };
@@ -1084,6 +1196,10 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly idUser: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
             };
             readonly relations: {
               readonly alatBahan: {
@@ -1097,6 +1213,14 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['idLokasi'];
                 };
               };
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['idUser'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'lokasiPenyimpanan';
@@ -1105,6 +1229,7 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly namaLokasi: { readonly column: 'namaLokasi' };
                 readonly spesifikLetak: { readonly column: 'spesifikLetak' };
+                readonly idUser: { readonly column: 'idUser' };
               };
             };
           };
@@ -1118,17 +1243,29 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
             };
             readonly relations: {
-              readonly itemTags: {
+              readonly alatBahan: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'ItemTag';
+                  readonly model: 'AlatBahanTag';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
                   readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['idTag'];
+                  readonly targetFields: readonly ['tagId'];
+                };
+              };
+              readonly author: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
                 };
               };
             };
@@ -1138,6 +1275,7 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly id: { readonly column: 'id' };
                 readonly namaTag: { readonly column: 'namaTag' };
+                readonly userId: { readonly column: 'userId' };
               };
             };
           };
@@ -1155,18 +1293,22 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly password: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
               readonly updatedAt: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
             };
@@ -1182,6 +1324,36 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['idUser'];
                 };
               };
+              readonly kategori: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kategori';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['idUser'];
+                };
+              };
+              readonly lokasiPenyimpanan: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'LokasiPenyimpanan';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['idUser'];
+                };
+              };
+              readonly tags: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tag' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'user';
@@ -1190,6 +1362,7 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly email: { readonly column: 'email' };
                 readonly username: { readonly column: 'username' };
+                readonly password: { readonly column: 'password' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };
@@ -1254,8 +1427,8 @@ type ContractBase = Omit<
             readonly table: 'alat_bahan';
             readonly column: 'updatedAt';
           };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
+          readonly onCreate: { readonly kind: 'generator'; readonly id: 'instantNow' };
+          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'instantNow' };
         },
         {
           readonly ref: {
@@ -1271,8 +1444,8 @@ type ContractBase = Omit<
             readonly table: 'user';
             readonly column: 'updatedAt';
           };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
-          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
+          readonly onCreate: { readonly kind: 'generator'; readonly id: 'instantNow' };
+          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'instantNow' };
         },
       ];
     };

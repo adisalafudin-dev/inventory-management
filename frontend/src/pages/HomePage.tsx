@@ -11,9 +11,10 @@ import {
   PackagePlus,
   Tags,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const painPoints = [
   "Stok di buku catatan beda dengan stok yang ada di rak.",
@@ -114,6 +115,8 @@ const steps = [
 ];
 
 export default function HomePage() {
+  const isAuthenticated = useAuthStore().isAuthenticated;
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -144,19 +147,30 @@ export default function HomePage() {
             >
               Cara kerja
             </a>
-            <Link
-              to={ROUTES.LOGIN}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              Masuk
-            </Link>
-            <Link
-              to={ROUTES.REGISTER}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Daftar
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
+            {isAuthenticated ? (
+              <NavLink
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                to={ROUTES.DASHBOARD}
+              >
+                Dashboard
+              </NavLink>
+            ) : (
+              <>
+                <Link
+                  to={ROUTES.LOGIN}
+                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  to={ROUTES.REGISTER}
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Daftar
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -181,25 +195,30 @@ export default function HomePage() {
               setiap barang masuk–keluar — supaya jumlah di catatan selalu sama
               dengan jumlah di gudang.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                to={ROUTES.REGISTER}
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Daftar & catat item pertama
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-              <Link
-                to={ROUTES.LOGIN}
-                className="rounded-md border border-border bg-card px-5 py-3 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                Sudah punya akun? Masuk
-              </Link>
-            </div>
-            <p className="mt-5 text-xs text-muted-foreground">
-              Butuh akun untuk memulai — pendaftaran hanya butuh email,
-              username, dan password.
-            </p>
+
+            {!isAuthenticated && (
+              <>
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Link
+                    to={ROUTES.REGISTER}
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    Daftar & catat item pertama
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    to={ROUTES.LOGIN}
+                    className="rounded-md border border-border bg-card px-5 py-3 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    Sudah punya akun? Masuk
+                  </Link>
+                </div>
+                <p className="mt-5 text-xs text-muted-foreground">
+                  Butuh akun untuk memulai — pendaftaran hanya butuh email,
+                  username, dan password.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Momen visual: lembar mutasi stok asli */}
@@ -369,13 +388,15 @@ export default function HomePage() {
           ))}
         </ol>
         <div className="mt-12">
-          <Link
-            to={ROUTES.REGISTER}
-            className="inline-flex items-center gap-2 rounded-md bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90"
-          >
-            Mulai dari langkah pertama
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          {!isAuthenticated && (
+            <Link
+              to={ROUTES.REGISTER}
+              className="inline-flex items-center gap-2 rounded-md bg-secondary px-5 py-3 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90"
+            >
+              Mulai dari langkah pertama
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </section>
 
@@ -387,24 +408,39 @@ export default function HomePage() {
               Gudang yang rapi dimulai dari catatan yang rapi.
             </h2>
             <p className="mt-3 text-sm leading-6 text-secondary-foreground/75">
-              Daftarkan akun, catat barang pertama Anda hari ini, dan mulailah
-              menelusuri stok tanpa harus berkeliling mencarinya.
+              {!isAuthenticated
+                ? `Daftarkan akun, catat barang pertama Anda hari ini, dan mulailah
+              menelusuri stok tanpa harus berkeliling mencarinya.`
+                : `Masuk ke akun anda sekarang, catat barang pertama Anda hari ini, dan mulailah
+              menelusuri stok tanpa harus berkeliling mencarinya `}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
-            <Link
-              to={ROUTES.REGISTER}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Buat akun gratis
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-            <Link
-              to={ROUTES.LOGIN}
-              className="rounded-md border border-secondary-foreground/30 px-5 py-3 text-sm font-medium transition-colors hover:bg-secondary-foreground/10"
-            >
-              Masuk
-            </Link>
+            {isAuthenticated ? (
+              <NavLink
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                to={ROUTES.DASHBOARD}
+              >
+                Buka Dashboard
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </NavLink>
+            ) : (
+              <>
+                <Link
+                  to={ROUTES.REGISTER}
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Buat akun gratis
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+                <Link
+                  to={ROUTES.LOGIN}
+                  className="rounded-md border border-secondary-foreground/30 px-5 py-3 text-sm font-medium transition-colors hover:bg-secondary-foreground/10"
+                >
+                  Masuk
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>

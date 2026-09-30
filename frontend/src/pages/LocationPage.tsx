@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,146 +7,120 @@ import {
   Plus,
   Search,
   Trash2,
-  TriangleAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+import type { Location } from "@/features/location/types";
 import {
-  Dialog,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  useCreateLocation,
+  useDeleteLocation,
+  useLocations,
+  useUpdateLocation,
+} from "@/features/location/hooks/useLocation";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-/* ------------------------------------------------------------------ */
-/*  Placeholder data layout — ganti dengan hook API (mis. useLocations)*/
-/*  saat integrasi data backend sudah siap.                           */
-/* ------------------------------------------------------------------ */
-
-export interface LocationItem {
-  id: number;
-  namaLokasi: string;
-  spesifikLetak: string | null;
-}
-
-const INITIAL_MOCK_LOCATIONS: LocationItem[] = [
-  {
-    id: 1,
-    namaLokasi: "Rak Komponen 25 Laci",
-    spesifikLetak: "Laci No. 12 (Komponen Pasif)",
-  },
-  {
-    id: 2,
-    namaLokasi: "Meja Solder & Kerja",
-    spesifikLetak: "Kotak Perkakas Tengah",
-  },
-  {
-    id: 3,
-    namaLokasi: "Lemari Besi A",
-    spesifikLetak: "Tingkat 2 / Sisi Kiri",
-  },
-  {
-    id: 4,
-    namaLokasi: "Rak Bahan Habis Pakai",
-    spesifikLetak: "Toples Baut M6 & Sekrup",
-  },
-  {
-    id: 5,
-    namaLokasi: "Gudang Belakang - Rak D",
-    spesifikLetak: "Kardus Modul Sensor IoT",
-  },
-];
+  CreateLocationDialog,
+  DeleteLocationDialog,
+  UpdateLocationDialog,
+} from "@/features/location/components/LocationDialog";
+import type { LocationSchema } from "@/features/location/schema";
 
 export default function LocationPage() {
-  const [locations, setLocations] = useState<LocationItem[]>(INITIAL_MOCK_LOCATIONS);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // Dialog State (untuk preview layout modal)
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<LocationItem | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<LocationItem | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // Form temporary state (mocking input layout)
-  const [formNama, setFormNama] = useState("");
-  const [formSpesifik, setFormSpesifik] = useState("");
+  const [editTarget, setEditTarget] = useState<Location | null>(null);
 
-  const filteredLocations = useMemo(() => {
-    if (!search.trim()) return locations;
-    const q = search.toLowerCase();
-    return locations.filter(
-      (loc) =>
-        loc.namaLokasi.toLowerCase().includes(q) ||
-        (loc.spesifikLetak && loc.spesifikLetak.toLowerCase().includes(q))
-    );
-  }, [locations, search]);
+  const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
+  console.log(deleteTarget);
+
+  const debouncedSearch = useDebouncedValue(search, 400);
+
+  const { mutate: createLocation, isPending: isCreating } = useCreateLocation();
+
+  const { mutate: updateLocation, isPending: isUpdating } = useUpdateLocation();
+
+  const { mutate: deleteLocation, isPending: isDeleting } = useDeleteLocation();
+
+  const { data } = useLocations({
+    search: debouncedSearch,
+    page: page,
+    limit: 10,
+  });
+
+  const handleCreate = (values: Parameters<typeof createLocation>[0]) => {
+    createLocation(values, {
+      onSuccess: () => setEditOpen(false),
+    });
+  };
 
   const handleOpenCreate = () => {
-    setFormNama("");
-    setFormSpesifik("");
-    setIsCreateOpen(true);
+    setCreateOpen(!createOpen);
   };
 
-  const handleOpenEdit = (loc: LocationItem) => {
+  const handleOpenEdit = (loc: Location) => {
     setEditTarget(loc);
-    setFormNama(loc.namaLokasi);
-    setFormSpesifik(loc.spesifikLetak ?? "");
-    setIsEditOpen(true);
+    setEditOpen(!editOpen);
   };
 
-  // Mock submit handlers (layout preview)
-  const handleCreateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formNama.trim()) return;
-    const newItem: LocationItem = {
-      id: Date.now(),
-      namaLokasi: formNama.trim(),
-      spesifikLetak: formSpesifik.trim() || null,
-    };
-    setLocations((prev) => [newItem, ...prev]);
-    setIsCreateOpen(false);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editTarget || !formNama.trim()) return;
-    setLocations((prev) =>
-      prev.map((item) =>
-        item.id === editTarget.id
-          ? {
-              ...item,
-              namaLokasi: formNama.trim(),
-              spesifikLetak: formSpesifik.trim() || null,
-            }
-          : item
-      )
+  const handleUpdate = (values: LocationSchema) => {
+    if (!editTarget) return;
+    updateLocation(
+      { id: editTarget.id, payload: values },
+      { onSuccess: () => setEditOpen(false) },
     );
-    setIsEditOpen(false);
-    setEditTarget(null);
+  };
+
+  const handleOpenDelete = (loc: Location) => {
+    setDeleteOpen(true);
+    setDeleteTarget(loc);
   };
 
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    setLocations((prev) => prev.filter((item) => item.id !== deleteTarget.id));
-    setDeleteTarget(null);
+    deleteLocation(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) });
   };
 
-  const isEmpty = filteredLocations.length === 0;
+  // sekarang `data` beneran isinya response dari service (LocationListResponse)
+  const locations = data?.data ?? []; // sesuaikan sama shape backend kamu
+  const meta = data?.meta;
 
   return (
     <div className="space-y-4">
+      <CreateLocationDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSubmit={handleCreate}
+        isPending={isCreating}
+      ></CreateLocationDialog>
+      <UpdateLocationDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSubmit={handleUpdate}
+        isPending={isUpdating}
+        defaultValues={
+          editTarget
+            ? {
+                namaLokasi: editTarget.namaLokasi,
+                spesifikLetak: editTarget.spesifikLetak ?? "",
+              }
+            : null
+        }
+      ></UpdateLocationDialog>
+
+      <DeleteLocationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        target={deleteTarget}
+        isPending={isDeleting}
+        onConfirm={handleDeleteConfirm}
+      ></DeleteLocationDialog>
+
       {/* ── Header Halaman ── */}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
@@ -206,7 +180,7 @@ export default function LocationPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filteredLocations.map((lokasi) => (
+            {locations?.map((lokasi) => (
               <tr
                 key={lokasi.id}
                 className="transition-colors hover:bg-muted/60"
@@ -217,7 +191,9 @@ export default function LocationPage() {
                       <MapPin className="size-4" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate font-medium">{lokasi.namaLokasi}</p>
+                      <p className="truncate font-medium">
+                        {lokasi.namaLokasi}
+                      </p>
                       {/* Sub-label di layar mobile yang menyembunyikan kolom kedua */}
                       <p className="truncate text-xs text-muted-foreground md:hidden">
                         {lokasi.spesifikLetak || "—"}
@@ -244,7 +220,7 @@ export default function LocationPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setDeleteTarget(lokasi)}
+                      onClick={() => handleOpenDelete(lokasi)}
                       title={`Hapus ${lokasi.namaLokasi}`}
                       className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                     >
@@ -258,7 +234,7 @@ export default function LocationPage() {
         </table>
 
         {/* ── Empty State ── */}
-        {isEmpty && (
+        {locations.length === 0 && (
           <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">
             <span className="flex size-12 items-center justify-center rounded-md border border-dashed border-border bg-muted text-muted-foreground">
               {search ? (
@@ -299,172 +275,40 @@ export default function LocationPage() {
         )}
       </div>
 
-      {/* ── Footer Tabel / Paginasi ── */}
-      <div className="flex items-center justify-between px-2">
-        <p className="text-sm text-muted-foreground">
-          Menampilkan{" "}
-          <span className="font-mono tabular-nums">
-            {filteredLocations.length}
-          </span>{" "}
-          lokasi penyimpanan
-        </p>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            isDisabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            <ChevronLeft className="size-4" />
-            Sebelumnya
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            isDisabled={true}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Selanjutnya
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* ── Dialog Tambah Lokasi (Layout Modal) ── */}
-      <Dialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogHeader>
-          <DialogTitle>Tambah Lokasi Penyimpanan</DialogTitle>
-          <DialogDescription>
-            Tentukan area penyimpanan baru dan spesifikasi posisi barang di rak
-            atau laci kerja.
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleCreateSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label
-              htmlFor="namaLokasi"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              Nama Lokasi <span className="text-destructive">*</span>
-            </label>
-            <Input
-              id="namaLokasi"
-              placeholder="mis. Rak Komponen 25 Laci, Meja Solder"
-              value={formNama}
-              onChange={(e) => setFormNama(e.target.value)}
-              autoFocus
-              required
-            />
+      {meta ? (
+        <>
+          {/* ── Footer Tabel / Paginasi ── */}
+          <div className="flex items-center justify-between px-2">
+            <p className="text-sm text-muted-foreground">
+              Menampilkan{" "}
+              <span className="font-mono tabular-nums">{locations.length}</span>{" "}
+              lokasi penyimpanan
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                isDisabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft className="size-4" />
+                Sebelumnya
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                isDisabled={page >= (meta?.totalPages ?? 1)}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Selanjutnya
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
           </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="spesifikLetak"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              Spesifik Letak (Opsional)
-            </label>
-            <Input
-              id="spesifikLetak"
-              placeholder="mis. Laci No. 12, Kotak Perkakas, Rak 2"
-              value={formSpesifik}
-              onChange={(e) => setFormSpesifik(e.target.value)}
-            />
-          </div>
-
-          <DialogFooter className="mt-6 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsCreateOpen(false)}
-            >
-              Batalkan
-            </Button>
-            <Button type="submit">Simpan Lokasi</Button>
-          </DialogFooter>
-        </form>
-      </Dialog>
-
-      {/* ── Dialog Edit Lokasi (Layout Modal) ── */}
-      <Dialog isOpen={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogHeader>
-          <DialogTitle>Edit Lokasi Penyimpanan</DialogTitle>
-          <DialogDescription>
-            Perbarui nama atau penunjuk letak rak penyimpanan ini.
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleEditSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label
-              htmlFor="editNamaLokasi"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              Nama Lokasi <span className="text-destructive">*</span>
-            </label>
-            <Input
-              id="editNamaLokasi"
-              value={formNama}
-              onChange={(e) => setFormNama(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="editSpesifikLetak"
-              className="text-xs font-medium text-muted-foreground"
-            >
-              Spesifik Letak (Opsional)
-            </label>
-            <Input
-              id="editSpesifikLetak"
-              value={formSpesifik}
-              onChange={(e) => setFormSpesifik(e.target.value)}
-            />
-          </div>
-
-          <DialogFooter className="mt-6 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsEditOpen(false)}
-            >
-              Batalkan
-            </Button>
-            <Button type="submit">Simpan Perubahan</Button>
-          </DialogFooter>
-        </form>
-      </Dialog>
-
-      {/* ── Dialog Hapus Lokasi (AlertDialog Layout) ── */}
-      <AlertDialog
-        isOpen={deleteTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
-        }}
-      >
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <TriangleAlert className="size-6 text-destructive" aria-hidden="true" />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Hapus lokasi penyimpanan?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Lokasi “{deleteTarget?.namaLokasi ?? ""}” akan dihapus. Barang yang
-            terkait dengan lokasi ini akan kehilangan tautan lokasinya.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Batalkan</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onPress={handleDeleteConfirm}
-          >
-            Hapus Lokasi
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialog>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,8 +12,11 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class TagService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createTagDto: CreateTagDto) {
-    const existingTags = await this.prisma.db.orm.public.Tag.where({}).all();
+  async create(createTagDto: CreateTagDto, idUser: number) {
+    // Duplikat dicek hanya di antara tag milik user yang sama
+    const existingTags = await this.prisma.db.orm.public.Tag.where({
+      userId: idUser,
+    }).all();
     const duplicate = existingTags.some(
       (tag) =>
         tag.namaTag.toLowerCase() === createTagDto.namaTag.trim().toLowerCase(),
@@ -24,28 +28,37 @@ export class TagService {
 
     return this.prisma.db.orm.public.Tag.create({
       namaTag: createTagDto.namaTag.trim(),
+      userId: idUser,
     });
   }
 
-  async findAll() {
-    return this.prisma.db.orm.public.Tag.orderBy((tag) =>
-      tag.namaTag.asc(),
-    ).all();
+  async findAll(idUser: number) {
+    return this.prisma.db.orm.public.Tag.where({
+      userId: idUser,
+    })
+      .orderBy((tag) => tag.namaTag.asc())
+      .all();
   }
 
-  async findOne(id: number) {
-    const tag = await this.prisma.db.orm.public.Tag.where({ id }).first();
+  async findOne(id: number, idUser: number) {
+    const tag = await this.prisma.db.orm.public.Tag.where({
+      id,
+      userId: idUser,
+    }).first();
     if (!tag) throw new NotFoundException('Tag tidak ditemukan');
 
     return tag;
   }
 
-  async update(id: number, updateTagDto: UpdateTagDto) {
-    const current = await this.findOne(id);
+  async update(id: number, updateTagDto: UpdateTagDto, idUser: number) {
+    const current = await this.findOne(id, idUser);
     const namaTag = updateTagDto.namaTag?.trim();
 
     if (namaTag && namaTag.toLowerCase() !== current.namaTag.toLowerCase()) {
-      const existingTags = await this.prisma.db.orm.public.Tag.where({}).all();
+      // Cek duplikat hanya di antara tag milik user yang sama
+      const existingTags = await this.prisma.db.orm.public.Tag.where({
+        userId: idUser,
+      }).all();
       const duplicate = existingTags.some(
         (tag) =>
           tag.id !== id && tag.namaTag.toLowerCase() === namaTag.toLowerCase(),
@@ -61,31 +74,32 @@ export class TagService {
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(id: number, idUser: number) {
+    await this.findOne(id, idUser);
     return this.prisma.db.orm.public.Tag.where({ id }).delete();
   }
 
-  async getTagsForItem(idItem: string) {
+  async getTagsForItem(idItem: string, idUser: number) {
     const item = await this.prisma.db.orm.public.AlatBahan.where({
       id: idItem,
     }).first();
     if (!item) throw new NotFoundException('Alat/bahan tidak ditemukan');
+    if (item.idUser !== idUser) throw new ForbiddenException('Akses ditolak');
 
-    return this.prisma.db.orm.public.ItemTag.where({ idItem })
+    return this.prisma.db.orm.public.AlatBahanTag.where({ alatBahanId: idItem })
       .include('tag')
       .all();
   }
 
-  async getItemsForTag(idTag: number) {
-    await this.findOne(idTag);
+  async getItemsForTag(idTag: number, idUser: number) {
+    await this.findOne(idTag, idUser);
 
-    return this.prisma.db.orm.public.ItemTag.where({ idTag })
+    return this.prisma.db.orm.public.AlatBahanTag.where({ tagId: idTag })
       .include('alatBahan')
       .all();
   }
 
-  async attachToItem(idTags: number[], idItem: string) {
+  async attachToItem(idTags: number[], idItem: string, idUser: number) {
     // Id Tags di simpan ke Set dengan nama variable uniqueIds
     // Memakai Set karena dapat menyimpan value yang berbeda beda sehingga tidak ada duplikasi di idTags
     const uniqueIds = [...new Set(idTags)];
@@ -98,25 +112,32 @@ export class TagService {
         id: idItem,
       }).first();
       if (!item) throw new NotFoundException('Alat/bahan tidak ditemukan');
+      if (item.idUser !== idUser) throw new ForbiddenException('Akses ditolak');
 
+      // Semua tag harus ada dan milik user yang sama
       const tags = await Promise.all(
         uniqueIds.map((id) => tx.orm.public.Tag.where({ id }).first()),
       );
-
-      if (tags.some((tag) => !tag)) {
-        throw new NotFoundException('Tag tidak ditemukan');
+      for (const tag of tags) {
+        if (!tag) throw new NotFoundException('Tag tidak ditemukan');
+        if (tag.userId !== idUser) {
+          throw new ForbiddenException('Akses ditolak: Tag bukan milik Anda');
+        }
       }
 
       const existingLinks = await Promise.all(
         uniqueIds.map((idTag) =>
-          tx.orm.public.ItemTag.where({ idItem, idTag }).first(),
+          tx.orm.public.AlatBahanTag.where({
+            alatBahanId: idItem,
+            tagId: idTag,
+          }).first(),
         ),
       );
 
       const alreadyAttached = new Set<number>();
 
       for (const link of existingLinks) {
-        if (link) alreadyAttached.add(link.idTag);
+        if (link) alreadyAttached.add(link.tagId);
       }
 
       const toAttach = uniqueIds.filter((id) => !alreadyAttached.has(id));
@@ -125,25 +146,48 @@ export class TagService {
       }
 
       return tx.orm.public.AlatBahan.where({ id: idItem }).update({
-        itemTags: (t) =>
-          t.connect(toAttach.map((idTag) => ({ idItem, idTag }))),
+        // alatBahanTag: (t) =>
+        //   t.connect(toAttach.map((idTag) => ({ idItem, idTag }))),
+        alatBahanTag: (t) =>
+          t.connect(toAttach.map((tagId) => ({ alatBahanId: idItem, tagId }))),
       });
     });
   }
 
-  async detachFromItem(idTags: number[], idItem: string) {
+  async detachFromItem(idTags: number[], idItem: string, idUser: number) {
     const uniqueIds = [...new Set(idTags)];
 
     return this.prisma.db.transaction(async (tx) => {
-      const links = await Promise.all(
+      const item = await tx.orm.public.AlatBahan.where({
+        id: idItem,
+      }).first();
+      if (!item) throw new NotFoundException('Alat/bahan tidak ditemukan');
+      if (item.idUser !== idUser) throw new ForbiddenException('Akses ditolak');
+
+      // Semua tag harus ada dan milik user yang sama
+      const tags = await Promise.all(
+        uniqueIds.map((id) => tx.orm.public.Tag.where({ id }).first()),
+      );
+      for (const tag of tags) {
+        if (!tag) throw new NotFoundException('Tag tidak ditemukan');
+        if (tag.userId !== idUser) {
+          throw new ForbiddenException('Akses ditolak: Tag bukan milik Anda');
+        }
+      }
+
+      // Cek link yang benar-benar terpasang pada item ini
+      const existingLinks = await Promise.all(
         uniqueIds.map((idTag) =>
-          tx.orm.public.ItemTag.where({ idItem, idTag }).first(),
+          tx.orm.public.AlatBahanTag.where({
+            alatBahanId: idItem,
+            tagId: idTag,
+          }).first(),
         ),
       );
 
       const attached = new Set<number>();
-      for (const link of links) {
-        if (link) attached.add(link.idTag);
+      for (const link of existingLinks) {
+        if (link) attached.add(link.tagId);
       }
 
       const toDetach = uniqueIds.filter((id) => attached.has(id));
@@ -152,8 +196,10 @@ export class TagService {
       }
 
       return tx.orm.public.AlatBahan.where({ id: idItem }).update({
-        itemTags: (t) =>
-          t.disconnect(toDetach.map((idTag) => ({ idItem, idTag }))),
+        alatBahanTag: (t) =>
+          t.disconnect(
+            toDetach.map((idTag) => ({ alatBahanId: idItem, tagId: idTag })),
+          ),
       });
     });
   }

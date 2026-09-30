@@ -92,11 +92,11 @@ export class AlatBahanController {
     // 4. Manually set the dynamic headers on the response object
     res.set({
       'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Disposition': `attachment; filename=${fileName}`,
     });
 
     // 5. Simply return the data. NestJS handles the 200 OK status automatically.
-    return csvData;
+    res.send(csvData);
   }
 
   @Get(':id')

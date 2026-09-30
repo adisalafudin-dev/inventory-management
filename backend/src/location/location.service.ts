@@ -15,7 +15,7 @@ export class LocationService {
     const result = this.prisma.db.orm.public.LokasiPenyimpanan.create({
       idUser: idUser,
       namaLokasi: createLocationDto.namaLokasi,
-      spesifikLetak: createLocationDto.spesifikasiLetak,
+      spesifikLetak: createLocationDto.spesifikLetak,
     });
     return result;
   }

@@ -16,5 +16,5 @@ export class CreateLocationDto {
   })
   @IsString()
   @IsOptional()
-  spesifikasiLetak?: string;
+  spesifikLetak?: string;
 }

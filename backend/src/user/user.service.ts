@@ -10,8 +10,9 @@ export class UserService {
   create(createUserDto: CreateUserDto) {
     // updatedAt is NOT NULL with no DB default -> must be set from aplikasi
     return this.prisma.db.orm.public.User.create({
-      ...createUserDto,
-      updatedAt: new Date().toISOString(),
+      email: createUserDto.email,
+      username: createUserDto.username,
+      password: createUserDto.password,
     });
   }
 
@@ -26,7 +27,6 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     return this.prisma.db.orm.public.User.where({ id }).update({
       ...updateUserDto,
-      updatedAt: new Date().toISOString(),
     });
   }
 

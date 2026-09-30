@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -11,6 +12,8 @@ import { QueryAlatBahanDto } from './dto/query-alat-bahan.dto.js';
 import { UpdateStokDto } from './dto/update-stok.dto.js';
 import { QueryLogMutasiDto } from './dto/query-log.dto.js';
 import { Temporal } from '@js-temporal/polyfill';
+import { create } from 'node:domain';
+import { connect } from 'node:http2';
 
 @Injectable()
 export class AlatBahanService {
@@ -56,6 +59,23 @@ export class AlatBahanService {
         idKategori: Number(createAlatBahanDto.idKategori),
       });
 
+      if (createAlatBahanDto.itemTags) {
+        for (const itemTag of createAlatBahanDto.itemTags) {
+          // Find or create the tag by its unique name, without overwriting an existing one
+          const tag = await tx.orm.public.Tag.where({
+            id: itemTag.id,
+          }).first();
+
+          if (!tag) continue;
+
+          // Insert the link record in the join table yourself
+          await tx.orm.public.AlatBahanTag.create({
+            alatBahanId: data?.id,
+            tagId: tag?.id,
+          });
+        }
+      }
+
       // Buat log mutasi awal (tipe: IN) în același transakcija
       const mutation = await this.catatMutasi(tx.orm, data.id, Number(idUser), {
         jumlah: createAlatBahanDto.kuantitas,
@@ -73,18 +93,17 @@ export class AlatBahanService {
 
     let baseQuery = this.prisma.db.orm.public.AlatBahan.where((a) =>
       a.idUser.eq(idUser),
-    );
+    )
+      .include('kategori')
+      .include('lokasi')
+      .include('alatBahanTag');
 
     if (search) {
-      baseQuery = baseQuery.where(
-        (a) => a.idUser.eq(idUser) && a.namaBarang.like(`%${search}%`),
-      );
+      baseQuery = baseQuery.where((a) => a.namaBarang.like(`%${search}%`));
     }
 
     if (kondisi) {
-      baseQuery = baseQuery.where(
-        (a) => a.idUser.eq(idUser) && a.kondisi.like(`%${kondisi}%`),
-      );
+      baseQuery = baseQuery.where({ kondisi });
     }
 
     const data = await baseQuery
@@ -204,6 +223,10 @@ export class AlatBahanService {
         throw new ForbiddenException('Akses ditolak');
 
       const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
+
+      if (current.kuantitas < updateStockDto.jumlah) {
+        throw new BadRequestException('Stok tidak mencukupi');
+      }
 
       const mutation = await this.catatMutasi(tx.orm, id, currentUserId, {
         jumlah: updateStockDto.jumlah,

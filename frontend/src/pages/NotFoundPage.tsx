@@ -4,7 +4,7 @@ import { ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export default function NotFoundPage() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore().isAuthenticated;
 
   return (
     <main className="grid min-h-svh place-items-center bg-background p-4 text-foreground md:p-6">
@@ -47,19 +47,31 @@ export default function NotFoundPage() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                to={ROUTES.HOME}
-                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                Kembali ke beranda
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-              <Link
-                to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN}
-                className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                Masuk ke akun
-              </Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to={ROUTES.HOME}
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    Kembali ke beranda
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    to={ROUTES.REGISTER}
+                    className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    Buat akun gratis
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  to={ROUTES.DASHBOARD}
+                  className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  Kembali ke Dashboard
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
         </div>
