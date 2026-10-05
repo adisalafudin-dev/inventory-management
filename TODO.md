@@ -139,6 +139,7 @@ Urutan pengerjaan; detail tiap item ada di section masing-masing.
   - [ ] Test interceptor Axios (token disisipkan, 401 ditangani).
 - [ ] **Error Boundary** — Tangkap crash React, tampilkan layar ramah, kirim ke Sentry, dan tampilkan Request ID dari API call yang gagal.
 - [ ] **Penanganan Error API** — Interceptor Axios menangani 401 (refresh token / logout) dan menampilkan `code` error dari backend.
+- [ ] **Refactor Form** - Melakukan refactor untuk form
 
 ## Security Scanning
 

@@ -16,6 +16,7 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto, idUser: number) {
     const sameName = await this.prisma.db.orm.public.Kategori.where({
       namaKategori: createCategoryDto.namaKategori,
+      idUser: idUser,
     }).all();
 
     if (

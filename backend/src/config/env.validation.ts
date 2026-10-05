@@ -16,6 +16,18 @@ class EnvironmentVariables {
 
   @IsString()
   DATABASE_URL: string;
+
+  @IsString()
+  GOOGLE_CLIENT_ID: string;
+
+  @IsString()
+  GOOGLE_CLIENT_SECRET: string;
+
+  @IsString()
+  GOOGLE_CALLBACK_URL: string;
+
+  @IsString()
+  FRONTEND_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

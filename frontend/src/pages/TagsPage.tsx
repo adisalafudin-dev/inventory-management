@@ -15,7 +15,6 @@ import {
   useCreateTag,
   useUpdateTag,
   useDeleteTag,
-  useGetItemForTags,
 } from "@/features/tags/hooks/useTag";
 
 import {
@@ -42,6 +41,8 @@ export default function TagsPage() {
 
   const { data } = useTags();
 
+  console.log("TagsPage data:", data);
+
   const { mutate: createTag, isPending: isCreating } = useCreateTag();
 
   const { mutate: updateTag, isPending: isUpdating } = useUpdateTag();
@@ -50,11 +51,6 @@ export default function TagsPage() {
 
   const handleOpenCreate = () => {
     setIsCreateOpen(true);
-  };
-
-  const handleOpenEdit = (tag: Tag) => {
-    setEditTarget(tag);
-    setIsEditOpen(true);
   };
 
   const handleCreateSubmit = (values: CreateTagPayload) => {

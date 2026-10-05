@@ -12,8 +12,6 @@ import { QueryAlatBahanDto } from './dto/query-alat-bahan.dto.js';
 import { UpdateStokDto } from './dto/update-stok.dto.js';
 import { QueryLogMutasiDto } from './dto/query-log.dto.js';
 import { Temporal } from '@js-temporal/polyfill';
-import { create } from 'node:domain';
-import { connect } from 'node:http2';
 
 @Injectable()
 export class AlatBahanService {
@@ -53,17 +51,16 @@ export class AlatBahanService {
         namaBarang: createAlatBahanDto.namaBarang,
         kuantitas: createAlatBahanDto.kuantitas,
         kondisi: createAlatBahanDto.kondisi,
-        updatedAt: new Date().toISOString(),
         idUser: idUser,
         idLokasi: Number(createAlatBahanDto.idLokasi),
         idKategori: Number(createAlatBahanDto.idKategori),
       });
 
-      if (createAlatBahanDto.itemTags) {
-        for (const itemTag of createAlatBahanDto.itemTags) {
+      if (createAlatBahanDto.tagIds && createAlatBahanDto.tagIds.length > 0) {
+        for (const tagId of createAlatBahanDto.tagIds) {
           // Find or create the tag by its unique name, without overwriting an existing one
           const tag = await tx.orm.public.Tag.where({
-            id: itemTag.id,
+            id: tagId,
           }).first();
 
           if (!tag) continue;
@@ -96,7 +93,7 @@ export class AlatBahanService {
     )
       .include('kategori')
       .include('lokasi')
-      .include('alatBahanTag');
+      .include('alatBahanTag', (join) => join.include('tag'));
 
     if (search) {
       baseQuery = baseQuery.where((a) => a.namaBarang.like(`%${search}%`));
@@ -129,7 +126,11 @@ export class AlatBahanService {
     const item = await this.prisma.db.orm.public.AlatBahan.where({
       id,
       idUser,
-    }).first();
+    })
+      .include('lokasi')
+      .include('kategori')
+      .include('alatBahanTag', (join) => join.include('tag'))
+      .first();
 
     if (!item) throw new NotFoundException('Item tidak ditemukan');
     return item;
@@ -149,7 +150,7 @@ export class AlatBahanService {
       const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
       const newKuantitas = updateAlatBahanDto.kuantitas ?? current.kuantitas;
       const delta = newKuantitas - current.kuantitas;
-      const tipe = delta >= 0 ? 'IN' : delta < 0 ? 'OUT' : 'AUDIT';
+      const tipe = delta > 0 ? 'IN' : delta < 0 ? 'OUT' : 'AUDIT';
 
       // Buat log mutasi pertama (IN/OUT sesuai delta kuantitas)
       const mutation = await this.catatMutasi(tx.orm, id, currentUserId, {
@@ -165,7 +166,6 @@ export class AlatBahanService {
         namaBarang: updateAlatBahanDto.namaBarang,
         kuantitas: updateAlatBahanDto.kuantitas,
         kondisi: updateAlatBahanDto.kondisi,
-        updatedAt: new Date().toISOString(),
         idUser: currentUserId,
         idLokasi: updateAlatBahanDto.idLokasi
           ? Number(updateAlatBahanDto.idLokasi)
@@ -175,6 +175,34 @@ export class AlatBahanService {
           : undefined,
       });
 
+      if (updateAlatBahanDto.tagIds) {
+        const tagIds = [...new Set(updateAlatBahanDto.tagIds)]; // Hapus duplikat
+
+        const before = await tx.orm.public.AlatBahanTag.where({
+          alatBahanId: id,
+        }).all();
+        console.log('sebelum delete:', before);
+
+        await tx.orm.public.AlatBahanTag.where({
+          alatBahanId: id,
+        }).deleteAll();
+
+        const after = await tx.orm.public.AlatBahanTag.where({
+          alatBahanId: id,
+        }).all();
+        console.log('setelah delete:', after); // harus []
+
+        if (tagIds.length > 0) {
+          for (const tagId of tagIds) {
+            const tag = await tx.orm.public.Tag.where({ id: tagId }).first();
+            if (!tag) continue;
+            await tx.orm.public.AlatBahanTag.create({
+              alatBahanId: id,
+              tagId: tag.id,
+            });
+          }
+        }
+      }
       return { data, mutation };
     });
   }

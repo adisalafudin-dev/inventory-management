@@ -64,5 +64,5 @@ export class CreateAlatBahanDto {
   })
   @IsArray()
   @IsOptional()
-  itemTags!: Array<Tag>;
+  tagIds!: Array<number>;
 }

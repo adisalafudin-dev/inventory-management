@@ -13,9 +13,16 @@ export interface AlatBahan {
   idKategori: number | null;
   idLokasi: number | null;
   idUser: number | null;
-  kategori?: { id: number; namaKategori: string } | null; // ada setelah .include('kategori')
-  lokasi?: { id: number; namaLokasi: string } | null; // ada setelah .include('lokasi')
-  tags?: Tag[];
+  kategori?: { id: number; namaKategori: string } | null;
+  lokasi?: {
+    id: number;
+    namaLokasi: string;
+    spesifikLetak?: string | null;
+  } | null;
+  alatBahanTag?: {
+    idTag: number; // cek nama aslinya di console
+    tag: Tag; // ada setelah .include('tag') di dalam join
+  }[];
 }
 
 export interface LogMutasi {
@@ -67,9 +74,9 @@ export interface CreateAlatBahanPayload {
   namaBarang: string;
   kuantitas: number;
   kondisi: Kondisi;
-  idKategori: string; // string sesuai DTO
-  idLokasi: string;
-  tags?: Tag[];
+  idKategori: number;
+  idLokasi: number;
+  tagIds: number[];
 }
 export type UpdateAlatBahanPayload = Partial<CreateAlatBahanPayload>;
 

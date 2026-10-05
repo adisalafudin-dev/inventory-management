@@ -6,8 +6,9 @@ model User {
   id        Int               @id @default(autoincrement())
   email     String            @unique
   username  String
-  password String 
-  createdAt        DateTime   @default(now())
+  password String?
+  googleId  String?           @unique 
+  createdAt  DateTime   @default(now())
   updatedAt temporal.updatedAt()
   alatBahan    AlatBahan[]
   kategori     Kategori[]

@@ -8,10 +8,9 @@ import HomePage from "@/pages/HomePage";
 import RegisterPage from "@/pages/RegisterPage";
 import CategoryPage from "@/pages/CategoryPage";
 import LocationPage from "@/pages/LocationPage";
-// @ts-expect-error JavaScript component has no declaration file yet.
-import Item from "@/pages/Item";
-// @ts-expect-error JavaScript component has no declaration file yet.
+import AlatBahanPage from "@/pages/AlatBahanPage";
 import TagsPage from "@/pages/TagsPage";
+import MutationPage from "@/pages/MutationPage";
 
 export default function AppRoutes() {
   return (
@@ -42,8 +41,15 @@ function PageTransition() {
             path={ROUTES.LOCATIONS}
             element={<LocationPage></LocationPage>}
           ></Route>
-          <Route path={ROUTES.ITEMS} element={<Item></Item>}></Route>
+          <Route
+            path={ROUTES.ITEMS}
+            element={<AlatBahanPage></AlatBahanPage>}
+          ></Route>
           <Route path={ROUTES.TAGS} element={<TagsPage></TagsPage>}></Route>
+          <Route
+            path={ROUTES.MUTATIONS}
+            element={<MutationPage></MutationPage>}
+          ></Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
