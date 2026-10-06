@@ -24,6 +24,32 @@ export class UserService {
     return this.prisma.db.orm.public.User.where({ email }).first();
   }
 
+  async getGoogleById(googleId: string) {
+    return this.prisma.db.orm.public.User.where({ googleId }).first();
+  }
+
+  async linkGoogleAccount(userId: number, googleId: string) {
+    return this.prisma.db.orm.public.User.where({ id: userId }).update({
+      googleId,
+    });
+  }
+
+  async createFromGoogle({
+    email,
+    username,
+    googleId,
+  }: {
+    email: string;
+    username: string;
+    googleId: string;
+  }) {
+    return this.prisma.db.orm.public.User.create({
+      email,
+      username,
+      googleId,
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     return this.prisma.db.orm.public.User.where({ id }).update({
       ...updateUserDto,
