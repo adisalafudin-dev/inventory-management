@@ -20,7 +20,8 @@ export interface AlatBahan {
     spesifikLetak?: string | null;
   } | null;
   alatBahanTag?: {
-    idTag: number; // cek nama aslinya di console
+    alatBahanId: string;
+    tagId: number;
     tag: Tag; // ada setelah .include('tag') di dalam join
   }[];
 }

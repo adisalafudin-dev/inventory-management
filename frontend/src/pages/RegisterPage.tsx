@@ -33,6 +33,10 @@ export default function RegisterPage() {
   const { mutate: doRegister, isPending } = useRegister();
   const [showPassword, setShowPassword] = useState(false);
 
+  if (isAuthenticated) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
+
   const onSubmit = (data: RegisterSchema) => {
     doRegister(data);
   };

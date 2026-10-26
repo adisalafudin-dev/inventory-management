@@ -122,7 +122,7 @@ export function DialogForm({
               <Select
                 value={field.value}
                 onChange={field.onChange}
-                aria-invalid={!!errors.kondisi}
+                isInvalid={!!errors.kondisi}
                 aria-label="Pilih Kondisi"
               >
                 <SelectTrigger>
@@ -207,10 +207,11 @@ export function DialogForm({
             name="idLokasi"
             render={({ field }) => (
               <Select
-                value={field.value}
+                value={field.value ?? null}
                 onChange={field.onChange}
-                aria-invalid={!!errors.idLokasi}
+                isInvalid={!!errors.idLokasi}
                 aria-label="Pilih Lokasi Penyimpanan"
+                placeholder="Pilih Lokasi..."
               >
                 <SelectTrigger>
                   <SelectValue defaultValue="" />

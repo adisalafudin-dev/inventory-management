@@ -136,7 +136,7 @@ export function ItemHistoryDialog({
                     <TagIcon className="size-3 text-muted-foreground" />
                     {item.alatBahanTag.map((t) => (
                       <span
-                        key={t.idTag}
+                        key={t.tag.id}
                         className="font-mono text-[10px] text-muted-foreground"
                       >
                         #{t.tag.namaTag}

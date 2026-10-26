@@ -19,6 +19,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    if (typeof payload.sub !== 'number') {
+      throw new UnauthorizedException('Token tidak valid');
+    }
+
     const user = await this.userService.get(payload.sub);
 
     if (!user) {

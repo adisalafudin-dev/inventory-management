@@ -5,9 +5,12 @@ export const alatBahanSchema = z.object({
   namaBarang: z.string().min(1, "Nama barang wajib diisi"),
   kuantitas: z.number().int().min(0, "Kuantitas tidak boleh negatif"),
   kondisi: z.enum(["BAIK", "KARATAN", "RUSAK"]),
-  idKategori: z.coerce.number().min(1, "Pilih kategori"),
-  idLokasi: z.coerce.number().min(1, "Pilih lokasi"),
-  tagIds: z.array(z.number()).optional(),
+  idKategori: z
+    .number({ error: "Pilih kategori" })
+    .int()
+    .min(1, "Pilih kategori"),
+  idLokasi: z.number({ error: "Pilih lokasi" }).int().min(1, "Pilih lokasi"),
+  tagIds: z.array(z.number()),
 });
 
 export type AlatBahanSchema = z.infer<typeof alatBahanSchema>;

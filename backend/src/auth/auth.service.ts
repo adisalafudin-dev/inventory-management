@@ -5,8 +5,6 @@ import { UserService } from '../user/user.service.js';
 import { JwtService } from '@nestjs/jwt';
 import { Profile } from 'passport-google-oauth20';
 import { randomBytes } from 'node:crypto';
-import { UnauthorizedException } from '@nestjs/common';
-import type { Profile } from 'passport-google-oauth20';
 
 type AuthenticatedUser = {
   id: number;
@@ -42,6 +40,12 @@ export class AuthService {
       ...createAuthDto,
       password: hashedPassword,
     });
+
+    if (!user.password) {
+      throw new UnauthorizedException(
+        'Akun ini terdaftar lewat Google. Silakan masuk dengan Google.',
+      );
+    }
 
     const { password: _password, ...userWithoutPassword } = user;
 

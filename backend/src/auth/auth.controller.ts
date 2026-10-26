@@ -58,11 +58,13 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
+  @Public()
   googleLogin() {
     // guard yang me-redirect ke Google
   }
 
   @Get('google/callback')
+  @Public()
   @UseGuards(GoogleCallbackGuard)
   googleCallback(
     @Res() res: Response,

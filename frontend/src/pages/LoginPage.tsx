@@ -24,13 +24,18 @@ export default function LoginPage() {
   } = useForm<LoginSchema>({ resolver: zodResolver(loginSchema) });
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { mutate: doLogin, isPending } = useLogin();
+  const [showPassword, setShowPassword] = useState(false);
 
+  // Early return harus setelah semua hooks dipanggil
   if (isAuthenticated) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
-  const { mutate: doLogin, isPending } = useLogin();
-  const [showPassword, setShowPassword] = useState(false);
+  const handleGoogleLogin = () => {
+    // Redirect ke endpoint backend untuk login dengan Google
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+  };
 
   const onSubmit = (data: LoginSchema) => {
     doLogin(data);
@@ -209,6 +214,17 @@ export default function LoginPage() {
                     Daftar di sini
                   </Link>
                 </p>
+
+                <div className="max-w-sm mx-auto ">
+                  {/* Tombol Login Lokal di sini... */}
+                  <Button
+                    onClick={handleGoogleLogin}
+                    variant="outline"
+                    className="w-full mt-4"
+                  >
+                    Login dengan Google
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -23,13 +23,13 @@ export interface TagListResponse {
 
 // Untuk endpoint relasi item ↔ tag
 export interface ItemTag {
-  idItem: string;
-  idTag: number;
+  alatBahanId: string;
+  tagId: number;
   tag?: Tag; // muncul kalau di-include('tag')
 }
 
 export interface ItemTagWithAlatBahan {
-  idItem: string;
-  idTag: number;
+  alatBahanId: string;
+  tagId: number;
   alatBahan?: { id: string; namaBarang: string }; // muncul kalau di-include('alatBahan')
 }

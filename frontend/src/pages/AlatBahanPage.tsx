@@ -259,8 +259,8 @@ export default function AlatBahanPage() {
                 namaBarang: editTarget.namaBarang,
                 kuantitas: editTarget.kuantitas,
                 kondisi: editTarget.kondisi,
-                idKategori: editTarget.idKategori,
-                idLokasi: editTarget.idLokasi,
+                idKategori: editTarget.idKategori ?? undefined,
+                idLokasi: editTarget.idLokasi ?? undefined,
                 tagIds: editTarget.alatBahanTag?.map((at) => at.tag.id) ?? [],
               }
             : null
@@ -287,7 +287,7 @@ export default function AlatBahanPage() {
       <ItemHistoryDialog
         open={isHistoryOpen}
         onOpenChange={setIsHistoryOpen}
-        itemId={editTarget?.id}
+        itemId={editTarget?.id ?? null}
       />
 
       <DeleteAlatBahanDialog
