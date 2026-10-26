@@ -88,6 +88,7 @@ export class AuthController {
   }
 
   @Post('google/exchange')
+  @Public()
   googleExchange(@Body() dto: ExchangeCodeDto) {
     return this.authService.exchangeCode(dto.code);
   }
