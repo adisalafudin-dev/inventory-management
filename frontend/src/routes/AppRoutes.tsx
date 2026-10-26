@@ -11,6 +11,7 @@ import LocationPage from "@/pages/LocationPage";
 import AlatBahanPage from "@/pages/AlatBahanPage";
 import TagsPage from "@/pages/TagsPage";
 import MutationPage from "@/pages/MutationPage";
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
 
 export default function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ function PageTransition() {
         <Route path={ROUTES.HOME} element={<HomePage />} />
         <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallbackPage />} />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>

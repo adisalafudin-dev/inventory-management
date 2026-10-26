@@ -22,7 +22,8 @@ api.interceptors.response.use(
     const requestUrl = error.config?.url ?? "";
     const isAuthRequest =
       requestUrl.includes("/auth/login") ||
-      requestUrl.includes("/auth/register");
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/google/exchange");
 
     if (error.response?.status === 401 && !isAuthRequest) {
       useAuthStore.getState().logout();

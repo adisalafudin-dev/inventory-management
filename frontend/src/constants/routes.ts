@@ -8,4 +8,5 @@ export const ROUTES = {
   ITEMS: "/items",
   TAGS: "/tags",
   MUTATIONS: "/mutations",
+  AUTH_CALLBACK: "/auth/callback",
 } as const;

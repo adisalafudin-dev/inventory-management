@@ -27,4 +27,9 @@ export const authService = {
 
     return res.data.data;
   },
+
+  googleExchange: async (code: string): Promise<AuthResponse> => {
+    const res = await api.post("/auth/google/exchange", { code });
+    return res.data.data;
+  },
 };
