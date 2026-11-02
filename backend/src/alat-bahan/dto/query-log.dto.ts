@@ -27,16 +27,6 @@ export class QueryLogMutasiDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    example: 42,
-    description: 'Filter log mutasi berdasarkan ID pengguna.',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  idUser?: number;
-
-  @ApiPropertyOptional({
     enum: ['IN', 'OUT'],
     example: 'IN',
     description: 'Filter berdasarkan tipe mutasi barang masuk atau keluar.',

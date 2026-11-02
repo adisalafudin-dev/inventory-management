@@ -56,8 +56,8 @@ export class CategoryController {
     description: 'Detail kategori berhasil diambil.',
   })
   @ApiResponse({ status: 404, description: 'Kategori tidak ditemukan.' })
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  findOne(@Param('id') id: string, @CurrentUser('id') idUser: number) {
+    return this.categoryService.findOne(+id, idUser);
   }
 
   @Patch(':id')

@@ -40,6 +40,7 @@ export class CategoryService {
     const { search, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
+    // Filter user dipasang di query dasar supaya data DAN total ikut terfilter
     let baseQuery = this.prisma.db.orm.public.Kategori.where({ idUser });
 
     if (search) {
@@ -50,7 +51,6 @@ export class CategoryService {
       .orderBy((k) => k.id.desc())
       .limit(limit)
       .offset(offsetValue)
-      .where({ idUser: idUser })
       .all();
 
     const result = await baseQuery.aggregate((a) => ({ total: a.count() }));
@@ -67,10 +67,10 @@ export class CategoryService {
   }
 
   async findOne(id: number, idUser: number) {
-    const category = this.prisma.db.orm.public.Kategori.where({
-      id: id,
+    const category = await this.prisma.db.orm.public.Kategori.where({
+      id,
       idUser,
-    });
+    }).first();
 
     if (!category) {
       throw new NotFoundException('Kategori tidak ditemukan');
@@ -84,16 +84,9 @@ export class CategoryService {
     updateCategoryDto: UpdateCategoryDto,
     userId: number,
   ) {
-    const updatedCategory = await this.prisma.db.orm.public.Kategori.where({
-      id,
-      idUser: userId,
-    }).all();
+    await this.findOne(id, userId);
 
-    if (!updatedCategory) {
-      throw new NotFoundException('Kategori tidak ditemukan');
-    }
-
-    return await this.prisma.db.orm.public.Kategori.where({
+    return this.prisma.db.orm.public.Kategori.where({
       id,
       idUser: userId,
     }).update({
@@ -103,18 +96,11 @@ export class CategoryService {
   }
 
   async remove(id: number, userId: number) {
-    const category = await this.prisma.db.orm.public.Kategori.first({ id });
+    await this.findOne(id, userId);
 
-    if (!category) {
-      throw new NotFoundException('Kategori tidak ditemukan');
-    }
-
-    if (category.idUser !== userId) {
-      throw new ForbiddenException('Akses ditolak: Kategori bukan milik Anda');
-    }
-
-    // Lakukan operasi delete data
-    // (Gunakan metode delete sesuai sintaks Prisma ORM 8)
-    return await this.prisma.db.orm.public.Kategori.where({ id }).delete();
+    return this.prisma.db.orm.public.Kategori.where({
+      id,
+      idUser: userId,
+    }).delete();
   }
 }

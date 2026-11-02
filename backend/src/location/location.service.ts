@@ -40,8 +40,6 @@ export class LocationService {
       .offset(offsetValue)
       .all();
 
-    console.log(data);
-
     const result = await baseQuery.aggregate((a) => ({ total: a.count() }));
 
     return {
@@ -70,20 +68,28 @@ export class LocationService {
     }).first();
   }
 
-  update(id: number, updateLocationDto: UpdateLocationDto, idUser: number) {
+  async update(
+    id: number,
+    updateLocationDto: UpdateLocationDto,
+    idUser: number,
+  ) {
+    await this.findOne(id, idUser);
+
     return this.prisma.db.orm.public.LokasiPenyimpanan.where({
-      id: id,
-      idUser: idUser,
+      id,
+      idUser,
     }).update({
-      ...updateLocationDto,
-      idUser: idUser,
+      namaLokasi: updateLocationDto.namaLokasi,
+      spesifikLetak: updateLocationDto.spesifikLetak,
     });
   }
 
-  remove(id: number, idUser: number) {
+  async remove(id: number, idUser: number) {
+    await this.findOne(id, idUser);
+
     return this.prisma.db.orm.public.LokasiPenyimpanan.where({
-      id: id,
-      idUser: idUser,
+      id,
+      idUser,
     }).delete();
   }
 }
