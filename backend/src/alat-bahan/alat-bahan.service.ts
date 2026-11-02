@@ -17,6 +17,36 @@ import { Temporal } from '@js-temporal/polyfill';
 export class AlatBahanService {
   constructor(private prisma: PrismaService) {}
 
+  private async assertOwnedRefs(
+    orm: PrismaService['db']['orm'],
+    idUser: number,
+    refs: { idKategori?: number; idLokasi?: number; tagIds?: number[] },
+  ) {
+    if (refs.idKategori !== undefined) {
+      const kategori = await orm.public.Kategori.where({
+        id: refs.idKategori,
+        idUser,
+      }).first();
+      if (!kategori) throw new NotFoundException('Kategori tidak ditemukan');
+    }
+
+    if (refs.idLokasi !== undefined) {
+      const lokasi = await orm.public.LokasiPenyimpanan.where({
+        id: refs.idLokasi,
+        idUser,
+      }).first();
+      if (!lokasi) throw new NotFoundException('Lokasi tidak ditemukan');
+    }
+
+    for (const tagId of new Set(refs.tagIds ?? [])) {
+      const tag = await orm.public.Tag.where({
+        id: tagId,
+        userId: idUser,
+      }).first();
+      if (!tag) throw new NotFoundException('Tag tidak ditemukan');
+    }
+  }
+
   async catatMutasi(
     orm: PrismaService['db']['orm'],
     idItem: string,
@@ -46,6 +76,12 @@ export class AlatBahanService {
 
   async create(createAlatBahanDto: CreateAlatBahanDto, idUser: number) {
     return this.prisma.db.transaction(async (tx) => {
+      await this.assertOwnedRefs(tx.orm, idUser, {
+        idKategori: Number(createAlatBahanDto.idKategori),
+        idLokasi: Number(createAlatBahanDto.idLokasi),
+        tagIds: createAlatBahanDto.tagIds,
+      });
+
       const data = await tx.orm.public.AlatBahan.create({
         id: randomUUID(),
         namaBarang: createAlatBahanDto.namaBarang,
@@ -146,6 +182,12 @@ export class AlatBahanService {
       if (!current) throw new NotFoundException('Item tidak ditemukan');
       if (current.idUser !== userId)
         throw new ForbiddenException('Akses ditolak');
+
+      await this.assertOwnedRefs(tx.orm, userId, {
+        idKategori: Number(updateAlatBahanDto.idKategori),
+        idLokasi: Number(updateAlatBahanDto.idLokasi),
+        tagIds: updateAlatBahanDto.tagIds,
+      });
 
       const currentUserId = userId ? Number(userId) : (current.idUser ?? NaN);
       const newKuantitas = updateAlatBahanDto.kuantitas ?? current.kuantitas;
@@ -384,7 +426,8 @@ export class AlatBahanService {
     return csvRows.join('\n');
   }
 
-  remove(id: string, idUser: number) {
+  async remove(id: string, idUser: number) {
+    await this.findOne(id, idUser); // 404 jika tidak ada / bukan milik user
     return this.prisma.db.orm.public.AlatBahan.where({ id, idUser }).delete();
   }
 }

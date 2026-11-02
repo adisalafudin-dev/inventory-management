@@ -40,7 +40,7 @@ export class CategoryService {
     const { search, page = 1, limit = 10 } = query;
     const offsetValue = (page - 1) * limit;
 
-    let baseQuery = this.prisma.db.orm.public.Kategori;
+    let baseQuery = this.prisma.db.orm.public.Kategori.where({ idUser });
 
     if (search) {
       baseQuery = baseQuery.where((k) => k.namaKategori.like(`%${search}%`));
@@ -66,9 +66,10 @@ export class CategoryService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, idUser: number) {
     const category = this.prisma.db.orm.public.Kategori.where({
       id: id,
+      idUser,
     });
 
     if (!category) {
